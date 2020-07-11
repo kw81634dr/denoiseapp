@@ -25,12 +25,48 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>File(&amp;F)</string>
     </property>
     <addaction name="actionOpen_Folder"/>
-    <addaction name="actionClose"/>
+    <addaction name="actionLoad_Weight_File"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit(&amp;E)</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionReset_All"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View(&amp;V)</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools(&amp;T)</string>
+    </property>
+    <addaction name="actionDicom_Parser"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow_W">
+    <property name="title">
+     <string>Window(&amp;W)</string>
+    </property>
+    <addaction name="actionLayout"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuWindow_W"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
@@ -62,9 +98,34 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionClose">
+  <action name="actionExit">
    <property name="text">
-    <string>Close</string>
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionReset_All">
+   <property name="text">
+    <string>Reset All</string>
+   </property>
+  </action>
+  <action name="actionLoad_Weight_File">
+   <property name="text">
+    <string>Load Weight File</string>
+   </property>
+  </action>
+  <action name="actionDicom_Parser">
+   <property name="text">
+    <string>Dicom Parser</string>
+   </property>
+  </action>
+  <action name="actionLayout">
+   <property name="text">
+    <string>Layout</string>
    </property>
   </action>
  </widget>
