@@ -27,7 +27,14 @@
     <property name="title">
      <string>File(&amp;F)</string>
     </property>
-    <addaction name="actionOpen_Folder"/>
+    <widget class="QMenu" name="menuImport_DICOM_files">
+     <property name="title">
+      <string>Import DICOM files</string>
+     </property>
+     <addaction name="actionScan_Dcm_From_Folder"/>
+    </widget>
+    <addaction name="actionOpen_DICOM_File"/>
+    <addaction name="menuImport_DICOM_files"/>
     <addaction name="actionLoad_Weight_File"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -48,7 +55,7 @@
     <property name="title">
      <string>Tools(&amp;T)</string>
     </property>
-    <addaction name="actionDicom_Parser"/>
+    <addaction name="action_Image_Converter"/>
    </widget>
    <widget class="QMenu" name="menuWindow_W">
     <property name="title">
@@ -84,9 +91,9 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionOpen_Folder">
+  <action name="actionOpen_DICOM_File">
    <property name="text">
-    <string>Open Folder</string>
+    <string>Open DICOM</string>
    </property>
    <property name="statusTip">
     <string>OpenFolder</string>
@@ -118,14 +125,29 @@
     <string>Load Weight File</string>
    </property>
   </action>
-  <action name="actionDicom_Parser">
-   <property name="text">
-    <string>Dicom Parser</string>
-   </property>
-  </action>
   <action name="actionLayout">
    <property name="text">
     <string>Layout</string>
+   </property>
+  </action>
+  <action name="action_Image_Converter">
+   <property name="text">
+    <string>Image Conveter</string>
+   </property>
+  </action>
+  <action name="actionfrom_PACS">
+   <property name="text">
+    <string>from PACS</string>
+   </property>
+  </action>
+  <action name="actionfrom_CD_DVD">
+   <property name="text">
+    <string>from CD/DVD</string>
+   </property>
+  </action>
+  <action name="actionScan_Dcm_From_Folder">
+   <property name="text">
+    <string>Scan Folder</string>
    </property>
   </action>
  </widget>
