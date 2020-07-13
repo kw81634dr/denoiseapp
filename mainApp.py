@@ -9,9 +9,12 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from appUI import *
 #   Import other Libraries
 from pathlib import Path
-import cv2
+# import cv2
 from pydicom.misc import is_dicom
 from dicomIO import *
+# Import VTK Lib
+import vtk
+from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 
 # class PBarThreadClass(QThread):
@@ -26,6 +29,7 @@ from dicomIO import *
 #             cnt = cnt+1
 #             time.sleep(0.3)
 #             self.sender.emit(cnt)   # 迴圈完畢後發出訊號
+
 
 class StandardItem(QStandardItem):
     def __init__(self, txt='', font_size=12, set_bold=False, color=QColor(0, 0, 0)):
@@ -45,14 +49,44 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__(parent)
+        # Delegate Main Window
         self.ui = Ui_MainWindow()
         self.setupUi(self)
         self.setWindowIcon(QApplication.style().standardIcon(QStyle.SP_TitleBarMenuButton))
         self.setWindowTitle('KW De-noise App')
         self.statusBar().showMessage('Status Here')
-        # KW Custom UI Marco
+        # #KW Custom UI Marco
         self.make_app_in_screen_center()
         self.init_toolbar()
+        # Delegate VTK QFrame
+        self.frame = QtWidgets.QFrame()
+        self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
+
+        '------------VTK-------------'
+    def vtk_display(self, path):
+        dicom_filename = "IM-0008-0034.dcm"
+        dicom_dir = 'IAC_2'
+        reader = vtk.vtkDICOMImageReader()
+        reader.SetFileName(path)
+        # reader.SetDirectoryName(dicom_dir)
+        rescaleOffset = reader.GetRescaleOffset()
+        rescaleSlope = reader.GetRescaleSlope()
+        reader.Update()
+
+        # self.viewer = vtk.vtkImageViewer()
+        self.viewer = vtk.vtkImageViewer2()
+        # self.viewer = vtk.vtkResliceImageViewer()
+        self.viewer.SetColorLevel(500.0)
+        self.viewer.SetColorWindow(3500.0)
+        self.viewer.SetInputData(reader.GetOutput())
+        self.viewer.SetupInteractor(self.vtkWidget)
+        self.viewer.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+        self.viewer.Render()
+        self.setCentralWidget(self.frame)
+        self.show()
+        self.vtkWidget.Initialize()
+        '------------VTK-------------'
+
 
     def make_app_in_screen_center(self):
         qr = self.frameGeometry()
@@ -144,11 +178,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             file_path = Path(p)
             print('path=', file_path)
             self.statusBar().showMessage('Reading DICOM File.')
-            dcm_ds, default_wl, default_ww, rescale_intercept, rescale_slope = read_dcm_file(file_path)
-            dcm_image_scaled = ct_windowed(dcm_ds, default_wl, default_ww, np.uint8, (0, 255))
-            image = cv2.cvtColor(dcm_image_scaled, cv2.COLOR_GRAY2RGB)
-            cv2.imshow('DICOM', image)
-            cv2.waitKey(0)
+            self.vtk_display(str(file_path))
+            # dcm_ds, default_wl, default_ww, rescale_intercept, rescale_slope = read_dcm_file(file_path)
+            # dcm_image_scaled = ct_windowed(dcm_ds, default_wl, default_ww, np.uint8, (0, 255))
+            # image = cv2.cvtColor(dcm_image_scaled, cv2.COLOR_GRAY2RGB)
+            # cv2.imshow('DICOM', image)
+            # cv2.waitKey(0)
         else:
             self.statusBar().showMessage('Please choose Folder.')
 
