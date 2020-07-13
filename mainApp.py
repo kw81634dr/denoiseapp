@@ -12,6 +12,7 @@ from pathlib import Path
 # import cv2
 from pydicom.misc import is_dicom
 from dicomIO import *
+
 # Import VTK Lib
 import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
@@ -29,6 +30,16 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 #             cnt = cnt+1
 #             time.sleep(0.3)
 #             self.sender.emit(cnt)   # 迴圈完畢後發出訊號
+
+dcm_dict = {
+         'patientName':'Saving Private Ryan', #電影名稱
+         'PatientID':1998, #電影上映年份
+         'age':'Steven Spielberg',#導演
+         'studyDescription': 'Robert Rodat', #編劇
+         'Stars':['Tom Hanks', 'Matt Damon', 'Tom Sizemore'],#明星
+         'Oscar ':['Best Director','Best Cinematography','Best Sound','Best Film Editing','Best Effects, Sound Effects Editing']
+         #獲得的奧斯卡獎項
+}
 
 
 class StandardItem(QStandardItem):
@@ -81,6 +92,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.viewer.SetInputData(reader.GetOutput())
         self.viewer.SetupInteractor(self.vtkWidget)
         self.viewer.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+
         self.viewer.Render()
         self.setCentralWidget(self.frame)
         self.show()
