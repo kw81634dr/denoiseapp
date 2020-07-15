@@ -20,22 +20,22 @@ python = 3.6 for vtk compatibility
 
 # Features
 ## 1.Dicom Viewer
--[x] Open single Dicom Images
--[ ] Open Dicom series
--[ ] Dicom series Tree-view
--[x] Adjustable WW/WL
--[ ] Show Dicom Tags
--[ ] Export Dicom Tags
+- [x] Open single Dicom Images
+- [ ] Open Dicom series
+- [ ] Dicom series Tree-view
+- [x] Adjustable WW/WL
+- [ ] Show Dicom Tags
+- [ ] Export Dicom Tags
 
 ## 2. Dicom Image Processing
--[x] Combine n2n-keras env
--[ ] Load Denoise CNN weight
--[ ] Denoise with fixed parameters
--[ ] Denoise with adjustable parameters
--[ ] Export Images in Dicom format
--[ ] Export Images in commonly used format
+- [x] Combine n2n-keras env
+- [ ] Load Denoise CNN weight
+- [ ] Denoise with fixed parameters
+- [ ] Denoise with adjustable parameters
+- [ ] Export Images in Dicom format
+- [ ] Export Images in commonly used format
 
 
 ## 3.CNN Training Tools
--[ ] Import Dataset for training
--[ ] adjustable parameters
+- [ ] Import Dataset for training
+- [ ] adjustable parameters
