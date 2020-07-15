@@ -1,7 +1,7 @@
-#Denoise App
+# Denoise App
 -
 論文用 DIOCM 降噪程式
-###To-Do
+### To-Do
 整合n2nkeras進入app
 
 # Notice
