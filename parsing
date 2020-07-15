@@ -1,0 +1,46 @@
+推論 這份文件記錄程式的 parser
+
+訓練 train.py
+--自帶291--
+    --image_dir datasets/291/gg --test_dir datasets/Set14 --image_size 128 --batch_size 8 --nb_epochs 2 --lr 0.001 --output_path trainCkpts/dat291-n2n
+-RGB 91--
+    --image_dir D:\trainB --test_dir datasets/valid/Set14 --image_size 128 --batch_size 8 --nb_epochs 2 --lr 0.001 --output_path trainCkpts/dat91-n2n
+--A-LoDoPaB--
+    --image_dir datasets/ground_truth_train --test_dir datasets/lodopab_ground_truth_validation --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/lodopab
+--B-LoDoPab+CQ500--
+    --image_dir C:\Users\matuser\Desktop\trainB --test_dir C:\Users\matuser\Desktop\validB --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/B
+    --image_dir C:\Users\matuser\Desktop\trainB --test_dir C:\Users\matuser\Desktop\validB --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/B
+--B2-LoDoPab+CQ500--
+    --image_dir C:\Users\matuser\Desktop\trainB  --model unet  --test_dir C:\Users\matuser\Desktop\validB --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/B2
+--B3-LoDoPab+CQ500--
+    --image_dir C:\Users\matuser\Desktop\trainB --test_dir C:\Users\matuser\Desktop\validB --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/B3 --source_noise_model poisson --target_noise_model clean --val_noise_model poisson
+--B4-LoDoPab+CQ500--
+    --image_dir C:\Users\matuser\Desktop\trainB --test_dir C:\Users\matuser\Desktop\validB --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/B4 --source_noise_model gaussian,0,80 --target_noise_model gaussian,0,80 --val_noise_model gaussian,20,20
+--B5-LoDoPab+CQ500--
+    --image_dir C:\Users\matuser\Desktop\trainB --model unet --test_dir C:\Users\matuser\Desktop\validB --image_size 256 --batch_size 8  --lr 0.001 --output_path trainCkpts/B4 --nb_epochs 100
+--A2--
+    --image_dir datasets/train/lodopabTrain --model unet --test_dir datasets/valid/lodopabValid --image_size 256 --batch_size 8  --lr 0.0001 --output_path trainCkpts/A2
+--A3--
+    --image_dir datasets/train/lodopabTrain --test_dir datasets/valid/lodopabValid --image_size 128 --batch_size 8  --lr 0.0001 --output_path trainCkpts/A3 --source_noise_model poisson --target_noise_model poisson --val_noise_model poisson
+--A5-LoDoPaB--
+    --image_dir datasets/train/lodopabTrain --test_dir datasets/valid/lodopabValid  --image_size 256 --batch_size 8  --output_path trainCkpts/A5 --nb_epochs 100
+
+查看訓練紀錄 plot_history.py
+--Default--
+    plot_history.py --input1 gaussian --input2 clean
+--LoDoPaB--
+    plot_history.py --input1 trainCkpts/lodopab/history.npz
+
+
+推論 test_model.py
+--Default--
+    inference.py --weight_file [trained_model_path] --image_dir dataset/Set14
+    --weight_file trainCkpts/dat91-n2n/weights.002-102.581-28.32385.hdf5 --image_dir D:\Set5  --output_dir inference/set5
+    --weight_file trainedWeights-n2nkeras/noiseTarget/gauss_noise.hdf5 --image_dir datasets/NTU/CT_TIFF --output_dir inference/NTU-CT/default_Weight
+--LoDoPaB--
+    --weight_file trainCkpts/lodopab/weights.049-34.475-33.16206.hdf5 --image_dir datasets/ground_truth_test --output_dir inference/lodopab
+    --weight_file trainCkpts/lodopab/weights.049-34.475-33.16206.hdf5 --image_dir datasets/NTU/CT_TIFF --output_dir inference/NTU-CT/clear --test_noise_model clean
+--A2--
+    --weight_file trainCkpts/A2/weights.029-26.242-34.40007.hdf5 --image_dir datasets/test/NTUCTtest --model unet --output_dir inference/A2
+--A3--
+    --weight_file trainCkpts/A3/weights.029-0.259-54.66310.hdf5 --image_dir datasets/test/NTUCTtest --output_dir inference/A3 --test_noise_model poisson

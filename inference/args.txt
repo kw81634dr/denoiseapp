@@ -1,0 +1,7 @@
+{
+  "image_dir": "C:\\Users\\matuser\\Desktop\\8252kw",
+  "model": "unet",
+  "weight_file": "C:\\Users\\matuser\\Desktop\\weights.029-26.242-34.40007.hdf5",
+  "test_noise_model": "gaussian,25,25",
+  "output_dir": "C:\\git\\denoiseapp\\inference"
+}

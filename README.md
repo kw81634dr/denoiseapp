@@ -2,13 +2,7 @@
 -
 論文用 DIOCM 降噪程式
 ###To-Do
-- [x] 開啟單張DIOCM影像
-- [ ] 掃描並載入DIOCM影像資料夾（資料庫）
-- [ ] 轉存影像為其他常見格式 (jpg, png...)
-- [x] 嵌入vtk在視窗，並顯示DIOCM
-- [ ] 嵌入vtk在視窗，並顯示清單內選中的 DIOCM
-- [ ] 嵌入vtk在視窗，顯示DIOCM的MetaData
-- [ ] 載入n2n-keras相關模組
+整合n2nkeras進入app
 
 # Notice
 python = 3.6 for vtk compatibility
@@ -18,3 +12,25 @@ python = 3.6 for vtk compatibility
 * pydicom
 * pyqt5
 * vtk
+
+
+# Features
+## 1.Dicom Viewer
+-[x] Open single Dicom Images
+-[ ] Open Dicom series
+-[ ] Dicom series Tree-view
+-[x] Adjustable WW/WL
+-[ ] Show Dicom Tags
+-[ ] Export Dicom Tags
+
+##2. Dicom Image Processing
+-[ ] Load Denoise CNN weight
+-[ ] Denoise with fixed parameters
+-[ ] Denoise with adjustable parameters
+-[ ] Export Images in Dicom format
+-[ ] Export Images in commonly used format
+
+
+## 3.CNN Training Tools
+-[ ] Import Dataset for training
+-[ ] adjustable parameters

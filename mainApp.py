@@ -17,6 +17,7 @@ from dicomIO import *
 import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
+import sqlite3
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
