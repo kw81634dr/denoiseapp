@@ -1,17 +1,21 @@
 # Denoise App
--
-論文用 DIOCM 降噪程式
-### To-Do
-整合n2nkeras進入app
 
-# Notice
+論文用 DIOCM 降噪程式
+
+### To-Do
+將 n2nkeras 降噪功能放在圖形介面按鈕上
+
+# Env
 python = 3.6 for vtk compatibility
 
 # Dependencies
+* tensorflow-gpu=1.15
 * opencv
 * pydicom
 * pyqt5
 * vtk
+* pillow
+* tqdm
 
 
 # Features
