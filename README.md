@@ -23,7 +23,8 @@ python = 3.6 for vtk compatibility
 -[ ] Show Dicom Tags
 -[ ] Export Dicom Tags
 
-##2. Dicom Image Processing
+## 2. Dicom Image Processing
+-[x] Combine n2n-keras env
 -[ ] Load Denoise CNN weight
 -[ ] Denoise with fixed parameters
 -[ ] Denoise with adjustable parameters
