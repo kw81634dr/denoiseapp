@@ -9,13 +9,13 @@
 python = 3.6 for vtk compatibility
 
 # Dependencies
-* tensorflow-gpu=1.15
-* opencv
-* pydicom
-* pyqt5
-* vtk
-* pillow
-* tqdm
+`tensorflow-gpu=1.15`
+`opencv`
+`pydicom`
+`pyqt5`
+`vtk`
+`pillow`
+`tqdm`
 
 
 # Features
