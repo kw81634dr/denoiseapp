@@ -7,17 +7,17 @@ from PyQt5.QtGui import QKeySequence, QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 #   Import app UI Module
 from appUI import *
+
 #   Import other Libraries
 from pathlib import Path
 # import cv2
 from pydicom.misc import is_dicom
-from dicomIO import *
+import dbModule
 
 # Import VTK Lib
 import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
-import sqlite3
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -32,16 +32,15 @@ import sqlite3
 #             time.sleep(0.3)
 #             self.sender.emit(cnt)   # 迴圈完畢後發出訊號
 
-dcm_dict = {
-         'patientName':'Saving Private Ryan', #電影名稱
-         'PatientID':1998, #電影上映年份
-         'age':'Steven Spielberg',#導演
-         'studyDescription': 'Robert Rodat', #編劇
-         'Stars':['Tom Hanks', 'Matt Damon', 'Tom Sizemore'],#明星
-         'Oscar ':['Best Director','Best Cinematography','Best Sound','Best Film Editing','Best Effects, Sound Effects Editing']
-         #獲得的奧斯卡獎項
-}
-
+# dcm_dict = {
+#         'PatientID':1998, #病患ID
+#         'patientName':'Saving Private Ryan', #病患名稱
+#         'age':'Steven Spielberg',#年齡
+#         'studyDescription': 'Robert Rodat', #study 描述
+#         'seriesDescription': 'IAC', #series 描述
+#         'Stars':['Tom Hanks', 'Matt Damon', 'Tom Sizemore'],#
+#         'Oscar ':['Best Director','Best Cinematography','Best Sound','Best Film Editing','Best Effects, Sound Effects Editing']
+#         }
 
 class StandardItem(QStandardItem):
     def __init__(self, txt='', font_size=12, set_bold=False, color=QColor(0, 0, 0)):
