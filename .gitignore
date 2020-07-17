@@ -127,8 +127,13 @@ dmypy.json
 
 # Pyre type checker
 /pyre/
+
+#pyCharm
 /idea/
-/IAC_2/
-/inference/
 .idea/
+
+# Files for testing purpose
 /DcmDB.db
+/inference/
+/IM-0008-0034.dcm
+/IAC_2/
