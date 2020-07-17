@@ -14,11 +14,6 @@ class Ui_MainWindow(object):
         MainWindow.resize(1008, 667)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.frame_Vtk = QtWidgets.QFrame(self.centralwidget)
-        self.frame_Vtk.setGeometry(QtCore.QRect(20, 20, 361, 361))
-        self.frame_Vtk.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_Vtk.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_Vtk.setObjectName("frame_Vtk")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1008, 21))
@@ -84,6 +79,8 @@ class Ui_MainWindow(object):
         self.actionOpen_Single_Image.setObjectName("actionOpen_Single_Image")
         self.actionScan_Image_Folder = QtWidgets.QAction(MainWindow)
         self.actionScan_Image_Folder.setObjectName("actionScan_Image_Folder")
+        self.actionAbout = QtWidgets.QAction(MainWindow)
+        self.actionAbout.setObjectName("actionAbout")
         self.menuImport_DICOM_files.addAction(self.actionParse_DICOMDIR)
         self.menuImport_DICOM_files.addAction(self.actionOpen_CD)
         self.menuOpen_DICOM.addAction(self.actionOpen_Single_Image)
@@ -99,6 +96,7 @@ class Ui_MainWindow(object):
         self.menuTools.addAction(self.action_Image_Converter)
         self.menuTools.addAction(self.actionDICOMDIR_Parser)
         self.menuWindow_W.addAction(self.actionLayout)
+        self.menuHelp.addAction(self.actionAbout)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
@@ -136,6 +134,7 @@ class Ui_MainWindow(object):
         self.actionDICOMDIR_Parser.setText(_translate("MainWindow", "DICOM Hierarchy Organizer"))
         self.actionOpen_Single_Image.setText(_translate("MainWindow", "Single Image File"))
         self.actionScan_Image_Folder.setText(_translate("MainWindow", "by Scanning a Folder"))
+        self.actionAbout.setText(_translate("MainWindow", "About"))
 
 
 if __name__ == "__main__":

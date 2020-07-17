@@ -2,6 +2,16 @@ import shutil
 from pydicom.filereader import read_dicomdir
 from pathlib import Path
 
+# dcm_dict = {
+#         'PatientID':1998, #病患ID
+#         'patientName':'Saving Private Ryan', #病患名稱
+#         'age':'Steven Spielberg',#年齡
+#         'studyDescription': 'Robert Rodat', #study 描述
+#         'seriesDescription': 'IAC', #series 描述
+#         'Stars':['Tom Hanks', 'Matt Damon', 'Tom Sizemore'],#
+#         'Oscar ':['Best Director','Best Cinematography','Best Sound','Best Film Editing']
+#         }
+
 
 class DicomDirParser:
     """Duplicate DICOM files into user prompt directory and build hierarchy structure"""

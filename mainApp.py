@@ -1,24 +1,15 @@
 import sys
-
-#   Import Qt Libraries
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QAction, QDirModel, QStyle, QToolBar, qApp, QDesktopWidget, QMessageBox
-from PyQt5.Qt import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QAction, QDirModel, QStyle, QToolBar, qApp, \
+    QDesktopWidget, QMessageBox
 from PyQt5.QtGui import QKeySequence, QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-#   Import app UI Module
+from PyQt5.Qt import QStandardItemModel
 from appUI import *
-
-#   Import other Libraries
 from pathlib import Path
-# import cv2
-
-# Import VTK Lib
-import vtk
-from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-
+# Custom Module
 from dcmModule import DcmViewCalibration
 from dicomDirParserModule import DicomDirParser
-
+from fileTreeModule import DcmItem
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -33,31 +24,16 @@ from dicomDirParserModule import DicomDirParser
 #             time.sleep(0.3)
 #             self.sender.emit(cnt)   # 迴圈完畢後發出訊號
 
-# dcm_dict = {
-#         'PatientID':1998, #病患ID
-#         'patientName':'Saving Private Ryan', #病患名稱
-#         'age':'Steven Spielberg',#年齡
-#         'studyDescription': 'Robert Rodat', #study 描述
-#         'seriesDescription': 'IAC', #series 描述
-#         'Stars':['Tom Hanks', 'Matt Damon', 'Tom Sizemore'],#
-#         'Oscar ':['Best Director','Best Cinematography','Best Sound','Best Film Editing','Best Effects, Sound Effects Editing']
-#         }
 
-class StandardItem(QStandardItem):
-    def __init__(self, txt='', font_size=12, set_bold=False, color=QColor(0, 0, 0)):
-        super().__init__()
-        fnt = QFont('Arial', font_size)
-        fnt.setBold(set_bold)
-        self.setEditable(False)
-        self.setForeground(color)
-        self.setFont(fnt)
-        self.setText(txt)
+
+
+def get_clicked_value(val):
+    print(val.data())
+    print(val.row())
+    print(val.column())
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
-
-    working_path = None
-    files = []
 
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__(parent)
@@ -70,36 +46,36 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # #KW Custom UI Marco
         self.make_app_in_screen_center()
         self.init_toolbar()
-        # Delegate VTK QFrame
-        self.frame = QtWidgets.QFrame()
-        self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
 
-        '------------VTK-------------'
-    def vtk_display(self, path):
-        dicom_filename = "IM-0008-0034.dcm"
-        dicom_dir = 'IAC_2'
-        reader = vtk.vtkDICOMImageReader()
-        reader.SetFileName(path)
-        # reader.SetDirectoryName(dicom_dir)
-        rescaleOffset = reader.GetRescaleOffset()
-        rescaleSlope = reader.GetRescaleSlope()
-        reader.Update()
+        """TreeView"""
+        # Tree-view model
+        self.file_model = QDirModel()
+        self.dcm_model = QStandardItemModel()
+        self.dcm_model.invisibleRootItem()
+        '---------------------------------------------'
+        taiwan = DcmItem('Taiwan', 16, set_bold=True)
+        taipei = DcmItem('Taipei', 14, color=QColor(255, 110, 0))
+        banqiao = DcmItem('Banqiao', 12)
+        taiwan.appendRow(taipei)
+        taipei.appendRow(banqiao)
 
-        # self.viewer = vtk.vtkImageViewer()
-        self.viewer = vtk.vtkImageViewer2()
-        # self.viewer = vtk.vtkResliceImageViewer()
-        self.viewer.SetColorLevel(500.0)
-        self.viewer.SetColorWindow(3500.0)
-        self.viewer.SetInputData(reader.GetOutput())
-        self.viewer.SetupInteractor(self.vtkWidget)
-        self.viewer.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+        america = DcmItem('USA', 16, set_bold=True)
+        ca = DcmItem('CA', 14, color=QColor(0, 102, 255))
+        sanjose = DcmItem('San Jose', 12)
+        sanfrancisco = DcmItem('San Francisco', 12, color=QColor(0, 112, 31))
+        america.appendRow(ca)
+        ca.appendRow(sanjose)
+        ca.appendRow(sanfrancisco)
 
-        self.viewer.Render()
-        self.setCentralWidget(self.frame)
-        self.show()
-        self.vtkWidget.Initialize()
-        '------------VTK-------------'
+        self.dcm_model.appendRow(taiwan)
+        self.dcm_model.appendRow(america)
 
+        # Tree-view define
+        self.treeView.setHeaderHidden(True)
+        # self.treeView.doubleClicked.connect(self.get_selected_item_path)
+        self.treeView.doubleClicked.connect(get_clicked_value)
+        self.treeView.setModel(self.dcm_model)
+        self.treeView.expandAll()
 
     def make_app_in_screen_center(self):
         qr = self.frameGeometry()
@@ -136,35 +112,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DirOpenIcon))
         # action_ScanDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
 
-        # Tree-view model
-        self.file_model = QDirModel()
-        self.dcm_model = QStandardItemModel()
-        self.dcm_model.invisibleRootItem()
-        '---------------------------------------------'
-        taiwan = StandardItem('Taiwan', 16, set_bold=True)
-        taipei = StandardItem('Taipei', 14, color=QColor(255, 110, 0))
-        banqiao = StandardItem('Banqiao', 12)
-        taiwan.appendRow(taipei)
-        taipei.appendRow(banqiao)
-
-        america = StandardItem('USA', 16, set_bold=True)
-        ca = StandardItem('CA', 14, color=QColor(0, 102, 255))
-        sanjose = StandardItem('San Jose', 12)
-        sanfrancisco = StandardItem('San Francisco', 12, color=QColor(0, 112, 31))
-        america.appendRow(ca)
-        ca.appendRow(sanjose)
-        ca.appendRow(sanfrancisco)
-
-        self.dcm_model.appendRow(taiwan)
-        self.dcm_model.appendRow(america)
-
-        # Tree-view define
-        self.treeView.setHeaderHidden(True)
-        # self.treeView.doubleClicked.connect(self.get_selected_item_path)
-        self.treeView.doubleClicked.connect(self.get_clicked_treeview_value)
-        self.treeView.setModel(self.dcm_model)
-        self.treeView.expandAll()
-
     def parseDICOMDIR(self):
         p, _ = QFileDialog.getOpenFileName(self, 'Open \"DICOMDIR\" File', 'DICOMDIR', 'DICOMDIR File (*)')
         if Path(p).stem == 'DICOMDIR':
@@ -174,17 +121,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")
         gg = DcmViewCalibration.scan_for_dcm(p)
         print(*gg, sep='\n')
-
-    def get_clicked_treeview_value(self, val):
-        print(val.data())
-        print(val.row())
-        print(val.column())
-
-    # TREE VIEW
-    def update_tree_view(self, signal):
-        self.treeView.setModel(self.model)
-        self.treeView.setRootIndex(self.model.index(signal))
-        self.treeView.show()
 
     def open_one_dcm(self):
         p = QFileDialog.getOpenFileName(self, 'choose DICOM File to Open', '', 'DICOM Image File (*.dcm)')[0]
