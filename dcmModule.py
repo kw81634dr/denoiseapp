@@ -1,10 +1,13 @@
 import pydicom
+from pydicom.misc import is_dicom
 import numpy as np
+from pathlib import Path
 
 
-class DcmModule:
+class DcmViewCalibration:
 
-    def window_scale(self, data, wl, ww, dtype, out_range):
+    @staticmethod
+    def window_scale(data, wl, ww, dtype, out_range):
         """
         Scale pixel intensity data using specified window level, width, and intensity range.
         """
@@ -18,7 +21,8 @@ class DcmModule:
         data_new[data > (wl + ww / 2.0)] = out_range[1] - 1
         return data_new.astype(dtype)
 
-    def ct_windowed(self, dcm_ds, wl, ww, dtype, out_range):
+    @staticmethod
+    def ct_windowed(dcm_ds, wl, ww, dtype, out_range):
         """
         Scale CT image represented as a `pydicom.dataset.FileDataset` instance.
         """
@@ -27,7 +31,7 @@ class DcmModule:
         slope = int(dcm_ds.RescaleSlope)
         data = slope * dcm_ds.pixel_array + intercept
         # Scale intensity:
-        return DcmModule.window_scale(data, wl, ww, dtype, out_range)
+        return DcmViewCalibration.window_scale(data, wl, ww, dtype, out_range)
 
     @staticmethod
     def read_dcm_file(image_path):
@@ -53,4 +57,17 @@ class DcmModule:
             pass
             print('Exception', e)
         print("Cannot read DICOM! ", image_path)
+
+    @staticmethod
+    def scan_for_dcm(path):
+        if path != '':
+            fs = Path(path).rglob("*")
+            fl = []
+            for f in fs:
+                try:
+                    if is_dicom(f):
+                        fl.append(f)
+                except IOError:
+                    pass
+            return fl
 

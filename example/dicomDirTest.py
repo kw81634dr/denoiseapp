@@ -3,14 +3,14 @@
 
 from os.path import dirname, join
 from pprint import pprint
-
+from pathlib import Path
 import pydicom
 from pydicom.data import get_testdata_file
 from pydicom.filereader import read_dicomdir
 from pydicom.tag import Tag
 
 # fetch the path to the test data
-filepath = '/Users/ziyangwang/Desktop/NTUISO/CT1/DICOMDIR'
+filepath = Path('D:/Users/user/Desktop/CT1/DICOMDIR').expanduser()
 print('Path to the DICOM directory: {}'.format(filepath))
 # load the data
 dicom_dir = read_dicomdir(filepath)
@@ -58,18 +58,20 @@ for patient_record in dicom_dir.patient_records:
             for image_filename in image_filenames:
                 try:
                     datasets.append(pydicom.dcmread(image_filename))
-                except IOError:
-                    print('IO_ERROR')
+                except FileNotFoundError:
+                    print('File Not Found!')
                     pass
 
-            def safe_execute(default, exception, function, *args):
-                try:
-                    return function(*args)
-                except exception:
-                    return default
+            # def safe_execute(default, exception, function, *args):
+            #     try:
+            #         return function(*args)
+            #     except exception:
+            #         return default
 
-            patient_names = set(ds.PatientName for ds in datasets)
-            patient_IDs = set(ds.PatientID for ds in datasets)
+            patient_names = set(ds[Tag(0x33, 0x1013)].value.decode('utf8') for ds in datasets)
+            patient_IDs = set(ds[Tag(0x33, 0x1014)].value.decode('utf8') for ds in datasets)
+            # patient_names = set(ds.PatientName for ds in datasets)
+            # patient_IDs = set(ds.PatientID for ds in datasets)
 
             # List the image filenames
             print("\n" + " " * 12 + "Image filenames:")

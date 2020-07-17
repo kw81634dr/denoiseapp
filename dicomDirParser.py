@@ -1,46 +1,63 @@
-import os
-from os.path import dirname, join
 import shutil
-import pydicom
 from pydicom.filereader import read_dicomdir
-import re
+from pathlib import Path
 
-path = '/Users/ziyangwang/Desktop/NTUISO/CT5/DICOMDIR'
-dicom_dir = read_dicomdir(path)
-base_dir = dirname(path)
 
-for patient_record in dicom_dir.patient_records:  # got through each patient
-    path1 = os.path.join(base_dir, patient_record.PatientName.family_name)#拼接目录
-    try:
-        os.mkdir(path1) # 创建目录
-    except FileExistsError:
-        pass
+class DicomDirParser:
+    """Duplicate DICOM files into user prompt directory and build hierarchy structure"""
 
-    studies = patient_record.children  # got through each study
-    for study in studies:
-        path2 = os.path.join(path1, study.StudyID)
-        try:
-            os.mkdir(path2)  # 创建目录
-        except FileExistsError:
-            pass
+    def __init__(self, source='', destination=''):
+        self.inputPath = Path(source).expanduser()
+        self.outputPath = Path(destination).expanduser()
+        self.dcmDirFilePath = self.inputPath / "DICOMDIR"
 
-        all_series = study.children  # go through each serie
-        for series in all_series:
-            if 'SeriesDescription' not in series:
-                series.SeriesDescription = "N/A"
-            series.SeriesDescription = re.sub(r'\W', "", series.SeriesDescription)#偶尔存在非法符号，正则匹配后去掉
-            path3 = os.path.join(path2, 'series-' + str(series.SeriesNumber)) #原本是SeriesDescription
-            try:
-                os.mkdir(path3)  # 创建目录
-            except FileExistsError:
-                pass
+        """讀取DICOMDIR檔案,這是讀取 DICOMDIR 檔案的物件"""
+        self.DICOMDIRFILE = read_dicomdir(self.dcmDirFilePath)
 
-            image_records = series.children  # go through each image
-            image_filenames = [join(base_dir, *image_rec.ReferencedFileID) for image_rec in image_records]
-            for image_filename in image_filenames:
-                try:
-                    shutil.copy(image_filename, path3)#拷貝文件到新資料夾分類放好
-                except shutil.Error:
-                    pass
-                except FileNotFoundError:
-                    pass
+        self.pathL1 = ''
+        self.pathL2 = ''
+        self.pathL3 = ''
+
+    def copyToOrganizedFolder(self):
+        for patient_record in self.DICOMDIRFILE.patient_records:
+            self.pathL1 = self.outputPath.joinpath(patient_record.PatientID)
+            # print('pathL1=', self.pathL1)
+            studies = patient_record.children  # got through each study
+            for study in studies:
+                self.pathL2 = self.pathL1.joinpath(study.StudyID)
+                # print('pathL2=', self.pathL2)
+                all_series = study.children  # go through each series
+                for series in all_series:
+                    self.pathL3 = self.pathL2.joinpath('series-' + str(series.SeriesNumber))
+                    # print('pathL3=', self.pathL3)
+                    """建立目的地階層式目錄, 連同父階層建立, 若已存在則將覆蓋"""
+                    self.pathL3.mkdir(parents=True, exist_ok=True)
+                    """取得DICOMDIR中的影像中繼資料"""
+                    image_records = series.children  # go through each image
+                    # print(image_records)
+                    """生成輸入檔案的原始路徑"""
+                    original_image_filenames = [self.inputPath.joinpath(*image_rec.ReferencedFileID)
+                                                for image_rec in image_records]
+                    """複製影像到目標階層目錄"""
+                    for old_filename in original_image_filenames:
+                        new_filename = self.pathL3.joinpath(old_filename.name)
+                        # print('copy', old_filename, 'to', new_filename)
+                        try:
+                            shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
+                        except shutil.Error:
+                            # print(shutil.Error)
+                            pass
+                        except FileNotFoundError:
+                            # print('File not Found')
+                            pass
+
+
+if __name__ == "__main__":
+    # 在路徑前加 r，使編譯器將整組路徑視為Raw String，字串中的跳脫字元都被當成一般字元處理。
+    # 原因: 編譯器將路徑中的 C:\Users\ 視為Unicode-Escape編碼的跳脫字元
+    # 因此\U被當成Unicode Code字串的起點，依照定義後面必需接8位數字 (ex. \U01000001) 來Decode
+    # 在此後面接了一串字母，因此產生Decode失敗的錯誤訊息。
+    in_directory = r'D:\Users\user\Desktop\CT5'
+    out_directory = r'C:\Parsed'
+    DicomDirParser(in_directory, out_directory).copyToOrganizedFolder()
+    print("Done")

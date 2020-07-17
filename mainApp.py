@@ -11,12 +11,13 @@ from appUI import *
 #   Import other Libraries
 from pathlib import Path
 # import cv2
-from pydicom.misc import is_dicom
-import dbModule
 
 # Import VTK Lib
 import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
+from dcmModule import DcmViewCalibration
+import dicomDirParser
 
 
 # class PBarThreadClass(QThread):
@@ -119,7 +120,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         action_exit_app = self.actionExit
         action_exit_app.triggered.connect(qApp.quit)    # terminate App
         action_ScanDcmDir = self.actionScan_Dcm_From_Folder
-        action_ScanDcmDir.triggered.connect(self.scan_for_dcm)
+        action_ScanDcmDir.triggered.connect(self.printDcmFilesPath)
+        action_ParseDcmDir = self.actionOpen_DICOMDIR
+        action_ParseDcmDir.triggered.connect()
+
 
         # Add action to ToolBar
         toolbar.addAction(action_opnDcm)
@@ -159,19 +163,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.treeView.setModel(self.dcm_model)
         self.treeView.expandAll()
 
-    def scan_for_dcm(self):
+    def printDcmFilesPath(self, p):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")
-        if p != '':
-            fs = Path(p).rglob("*")
-            fl = []
-            for f in fs:
-                try:
-                    if is_dicom(f):
-                        fl.append(f)
-                except IOError:
-                    pass
-            print(*fl, sep='\n')
-
+        gg = DcmViewCalibration.scan_for_dcm(p)
+        print(*gg, sep='\n')
 
     def get_clicked_treeview_value(self, val):
         print(val.data())

@@ -17,10 +17,10 @@
    <widget class="QFrame" name="frame_Vtk">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>20</x>
       <y>20</y>
-      <width>561</width>
-      <height>581</height>
+      <width>361</width>
+      <height>361</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>1008</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -46,9 +46,10 @@
     </property>
     <widget class="QMenu" name="menuImport_DICOM_files">
      <property name="title">
-      <string>Import DICOM files</string>
+      <string>Import DICOM From</string>
      </property>
-     <addaction name="actionScan_Dcm_From_Folder"/>
+     <addaction name="actionOpen_DICOMDIR"/>
+     <addaction name="actionOpen_CD"/>
     </widget>
     <addaction name="actionOpen_DICOM_File"/>
     <addaction name="menuImport_DICOM_files"/>
@@ -67,12 +68,14 @@
     <property name="title">
      <string>View(&amp;V)</string>
     </property>
+    <addaction name="actionDICOM_Tags"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools(&amp;T)</string>
     </property>
     <addaction name="action_Image_Converter"/>
+    <addaction name="actionDICOMDIR_Parser"/>
    </widget>
    <widget class="QMenu" name="menuWindow_W">
     <property name="title">
@@ -107,6 +110,17 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
   </widget>
   <action name="actionOpen_DICOM_File">
    <property name="text">
@@ -162,9 +176,29 @@
     <string>from CD/DVD</string>
    </property>
   </action>
-  <action name="actionScan_Dcm_From_Folder">
+  <action name="actionOpen_DICOMDIR">
    <property name="text">
-    <string>Scan Folder</string>
+    <string>DICOMDIR</string>
+   </property>
+  </action>
+  <action name="actionOpen_CD">
+   <property name="text">
+    <string>CD/DVD</string>
+   </property>
+  </action>
+  <action name="actionHierarchy_Orgnizer">
+   <property name="text">
+    <string>Hierarchy Organizer</string>
+   </property>
+  </action>
+  <action name="actionDICOM_Tags">
+   <property name="text">
+    <string>DICOM Tags</string>
+   </property>
+  </action>
+  <action name="actionDICOMDIR_Parser">
+   <property name="text">
+    <string>DICOM Hierarchy Organizer</string>
    </property>
   </action>
  </widget>
