@@ -9,16 +9,17 @@ class DicomDirParser:
     def __init__(self, source='', destination=''):
         self.inputPath = Path(source).expanduser()
         self.outputPath = Path(destination).expanduser()
-        self.dcmDirFilePath = self.inputPath / "DICOMDIR"
-
-        """讀取DICOMDIR檔案,這是讀取 DICOMDIR 檔案的物件"""
+        self.dcmDirFilePath = self.inputPath
+        # self.dcmDirFilePath = self.inputPath / "DICOMDIR"     # 測試用路徑, 自動加上DICOMDIR
+        """讀取DICOMDIR檔案,下一行是讀取 DICOMDIR 檔案的物件"""
         self.DICOMDIRFILE = read_dicomdir(self.dcmDirFilePath)
 
         self.pathL1 = ''
         self.pathL2 = ''
         self.pathL3 = ''
+        DcmDIRlDict = {}
 
-    def copyToOrganizedFolder(self):
+    def parseDIR(self):
         for patient_record in self.DICOMDIRFILE.patient_records:
             self.pathL1 = self.outputPath.joinpath(patient_record.PatientID)
             # print('pathL1=', self.pathL1)
@@ -31,7 +32,11 @@ class DicomDirParser:
                     self.pathL3 = self.pathL2.joinpath('series-' + str(series.SeriesNumber))
                     # print('pathL3=', self.pathL3)
                     """建立目的地階層式目錄, 連同父階層建立, 若已存在則將覆蓋"""
-                    self.pathL3.mkdir(parents=True, exist_ok=True)
+                    try:
+                        self.pathL3.mkdir(parents=True, exist_ok=True)
+                    except FileExistsError:
+                        print("Exist", self.pathL3, 'pass!')
+                        pass
                     """取得DICOMDIR中的影像中繼資料"""
                     image_records = series.children  # go through each image
                     # print(image_records)
@@ -41,9 +46,9 @@ class DicomDirParser:
                     """複製影像到目標階層目錄"""
                     for old_filename in original_image_filenames:
                         new_filename = self.pathL3.joinpath(old_filename.name)
-                        # print('copy', old_filename, 'to', new_filename)
                         try:
-                            shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
+                            # shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
+                            print('Old', old_filename, 'to', new_filename)
                         except shutil.Error:
                             # print(shutil.Error)
                             pass
@@ -59,5 +64,5 @@ if __name__ == "__main__":
     # 在此後面接了一串字母，因此產生Decode失敗的錯誤訊息。
     in_directory = r'D:\Users\user\Desktop\CT5'
     out_directory = r'C:\Parsed'
-    DicomDirParser(in_directory, out_directory).copyToOrganizedFolder()
+    DicomDirParser(in_directory, out_directory).parseDIR()
     print("Done")

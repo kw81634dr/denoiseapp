@@ -17,7 +17,7 @@ import vtk
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 from dcmModule import DcmViewCalibration
-import dicomDirParser
+from dicomDirParserModule import DicomDirParser
 
 
 # class PBarThreadClass(QThread):
@@ -114,25 +114,27 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.addToolBar(toolbar)
         toolbar.setContextMenuPolicy(Qt.PreventContextMenu)  # prevent users from hiding toolbar
         toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        #   Actions
-        action_opnDcm = self.actionOpen_DICOM_File
-        action_opnDcm.triggered.connect(self.open_one_dcm)
+        """Actions"""
+        # terminate App
         action_exit_app = self.actionExit
-        action_exit_app.triggered.connect(qApp.quit)    # terminate App
-        action_ScanDcmDir = self.actionScan_Dcm_From_Folder
+        action_exit_app.triggered.connect(qApp.quit)
+        # Open Single Dcm
+        action_opnDcm = self.actionOpen_Single_Image
+        action_opnDcm.triggered.connect(self.open_one_dcm)
+        # Scan folder for dcm
+        action_ScanDcmDir = self.actionScan_Image_Folder
         action_ScanDcmDir.triggered.connect(self.printDcmFilesPath)
-        action_ParseDcmDir = self.actionOpen_DICOMDIR
-        action_ParseDcmDir.triggered.connect()
-
-
-        # Add action to ToolBar
-        toolbar.addAction(action_opnDcm)
-        toolbar.addAction(action_ScanDcmDir)
-        # Set Icon
-        action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DirOpenIcon))
-        action_ScanDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
-        # Set Short Cut
+        # Parse DICOMDIR
+        action_ParseDcmDir = self.actionParse_DICOMDIR
+        action_ParseDcmDir.triggered.connect(self.parseDICOMDIR)
+        """" Set Keyboard Short Cut for actions"""
         action_opnDcm.setShortcut(QKeySequence.Open)
+        """Link actions to ToolBar as Buttons"""
+        toolbar.addAction(action_opnDcm)
+        # toolbar.addAction(action_ScanDcmDir)
+        """"Set ToolBar Buttons Icon"""
+        action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DirOpenIcon))
+        # action_ScanDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
 
         # Tree-view model
         self.file_model = QDirModel()
@@ -162,6 +164,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.treeView.doubleClicked.connect(self.get_clicked_treeview_value)
         self.treeView.setModel(self.dcm_model)
         self.treeView.expandAll()
+
+    def parseDICOMDIR(self):
+        p, _ = QFileDialog.getOpenFileName(self, 'Open \"DICOMDIR\" File', 'DICOMDIR', 'DICOMDIR File (*)')
+        if Path(p).stem == 'DICOMDIR':
+            DicomDirParser(source=p, destination=p).parseDIR()
 
     def printDcmFilesPath(self, p):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")

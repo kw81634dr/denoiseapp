@@ -22,7 +22,9 @@ python = 3.6 for vtk compatibility
 ## 1.Dicom Viewer
 - [x] Open single Dicom Images
 - [ ] Open Dicom series
-- [ ] Dicom series Tree-view
+- [ ] Dicom series in Tree-view
+- [x] Parse `DICOMDIR` for CD/DVD
+- [x] Open fom CD/DVD & parse `DIOCMDIR`
 - [x] Adjustable WW/WL
 - [ ] Show Dicom Tags
 - [ ] Export Dicom Tags
