@@ -1,6 +1,6 @@
 # Denoise App
 
-論文用 DIOCM 降噪程式
+論文用 DICOM 降噪程式
 
 ### To-Do
 將 n2nkeras 降噪功能放在圖形介面按鈕上
@@ -19,12 +19,18 @@ python = 3.6 for vtk compatibility
 
 
 # Features
-## 1.Dicom Viewer
+## 1.Dicom I/O
 - [x] Open single Dicom Images
-- [ ] Open Dicom series
+- [ ] Open Dicom series to `Sqlite`
 - [ ] Dicom series in Tree-view
-- [x] Parse `DICOMDIR` for CD/DVD
-- [x] Open fom CD/DVD & parse `DIOCMDIR`
+
+##### DICOMDIR
+- [x] Parse `DICOMDIR` File
+- [ ] `DICOMDIR` to DataBase `Sqlite`
+- [ ] Open from CD/DVD & parse `DIOCMDIR`
+- [x] Duplicate Dcm Files to Hierarchy Folder according to `DICOMDIR`
+
+##### Viewer
 - [x] Adjustable WW/WL
 - [ ] Show Dicom Tags
 - [ ] Export Dicom Tags
