@@ -1,15 +1,18 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QAction, QDirModel, QStyle, QToolBar, qApp, \
-    QDesktopWidget, QMessageBox
+    QDesktopWidget, QMessageBox, QFileSystemModel
 from PyQt5.QtGui import QKeySequence, QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.Qt import QStandardItemModel
+from PyQt5.Qt import QStandardItemModel, QStandardItem
 from appUI import *
 from pathlib import Path
 # Custom Module
 from dcmModule import DcmViewCalibration, DcmDataBase
 from dicomDirParserModule import DicomDirParser
-from fileTreeModule import DcmItem
+from fileTreeModule import MyItem
+import numpy as np
+import cv2
+
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -47,40 +50,37 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         """TreeView"""
         # Tree-view model
-        self.file_model = QDirModel()
-        self.dcm_model = QStandardItemModel()
-        self.dcm_model.invisibleRootItem()
+        self.file_model = QFileSystemModel()
+        # self.rootNode = QStandardItemModel()
+        # self.rootNode.invisibleRootItem()
+        data = [("Alice", [("Keys", []), ("Purse", [("Cellphone", [])])]), ("Bob", [("Wallet", [("Credit card", []), ("Money", [])])])]
+
         '---------------------------------------------'
-        taiwan = DcmItem('Taiwan', 16, set_bold=True)
-        taipei = DcmItem('Taipei', 14, color=QColor(255, 110, 0))
-        banqiao = DcmItem('Banqiao', 12)
-        taiwan.appendRow(taipei)
-        taipei.appendRow(banqiao)
 
-        america = DcmItem('USA', 16, set_bold=True)
-        ca = DcmItem('CA', 14, color=QColor(0, 102, 255))
-        sanjose = DcmItem('San Jose', 12)
-        sanfrancisco = DcmItem('San Francisco', 12, color=QColor(0, 112, 31))
-        america.appendRow(ca)
-        ca.appendRow(sanjose)
-        ca.appendRow(sanfrancisco)
-
-        self.dcm_model.appendRow(taiwan)
-        self.dcm_model.appendRow(america)
-
+        self.model = QStandardItemModel()
+        self.addItems(self.model, data)
+        self.treeView.setModel(self.model)
+        self.model.setHorizontalHeaderLabels([self.tr("Object")])
         # Tree-view define
-        self.treeView.setHeaderHidden(True)
-        # self.treeView.doubleClicked.connect(self.get_selected_item_path)
+        # self.treeView.setHeaderHidden(True)
         self.treeView.doubleClicked.connect(get_clicked_value)
-        self.treeView.setModel(self.dcm_model)
         self.treeView.expandAll()
+
+    def addItems(self, parent, elements):
+        for text, children in elements:
+            item = QStandardItem(text)
+        parent.appendRow(item)
+        if children:
+            self.addItems(item, children)
+
+
 
     def make_app_in_screen_center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-        print('Position to screen Center!!')
+        # print('Position to screen Center!!')
 
     def init_toolbar(self):
         # Init ToolBar
@@ -105,10 +105,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         action_opnDcm.setShortcut(QKeySequence.Open)
         """Link actions to ToolBar as Buttons"""
         toolbar.addAction(action_opnDcm)
-        # toolbar.addAction(action_ScanDcmDir)
+        toolbar.addAction(action_ScanImgFolder)
+        toolbar.addAction(action_ParseDcmDir)
         """"Set ToolBar Buttons Icon"""
-        action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DirOpenIcon))
-        # action_ScanDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
+        action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogOpenButton))
+        action_ScanImgFolder.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
+        action_ParseDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_DriveCDIcon))
 
     def parseDICOMDIR(self):
         p, _ = QFileDialog.getOpenFileName(self, 'Open \"DICOMDIR\" File', 'DICOMDIR', 'DICOMDIR File (*)')
@@ -117,21 +119,23 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def addToDB(self, p):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")
-        DcmDataBase(db_name='KW-DB').createDBbyScan(path_to_scan=p)
-        print("DB Imported!")
+        if p != '':
+            DcmDataBase(db_name='KW-DB').createDBbyScan(path_to_scan=p)
+            print("DB Import Done!")
 
     def open_one_dcm(self):
-        p = QFileDialog.getOpenFileName(self, 'choose DICOM File to Open', '', 'DICOM Image File (*.dcm)')[0]
+        p, _ = QFileDialog.getOpenFileName(self, 'choose DICOM File to Open', '', 'DICOM Image File (*.dcm)')
         if Path(p).is_file():
             file_path = Path(p)
             print('path=', file_path)
             self.statusBar().showMessage('Reading DICOM File.')
-            self.vtk_display(str(file_path))
-            # dcm_ds, default_wl, default_ww, rescale_intercept, rescale_slope = read_dcm_file(file_path)
-            # dcm_image_scaled = ct_windowed(dcm_ds, default_wl, default_ww, np.uint8, (0, 255))
-            # image = cv2.cvtColor(dcm_image_scaled, cv2.COLOR_GRAY2RGB)
-            # cv2.imshow('DICOM', image)
-            # cv2.waitKey(0)
+            # self.vtk_display(str(file_path))
+            dcm_ds, default_wl, default_ww, rescale_intercept, rescale_slope = DcmViewCalibration.read_dcm_file(
+                file_path)
+            dcm_image_scaled = DcmViewCalibration.ct_windowed(dcm_ds, default_wl, default_ww, np.uint8, (0, 255))
+            image = cv2.cvtColor(dcm_image_scaled, cv2.COLOR_GRAY2RGB)
+            cv2.imshow('DICOM', image)
+            cv2.waitKey(0)
         else:
             self.statusBar().showMessage('Please choose Folder.')
 

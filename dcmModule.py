@@ -88,9 +88,9 @@ class DcmDataBase:
         except Exception as e:
             pass
             print('DB Error', e)
-        self.getTable()
+        self.genTable()
 
-    def getTable(self, table_name='TBImage'):
+    def genTable(self, table_name='TBImage'):
         self.tableName = table_name
         if not self.sqlite.selectTableExist(table_name):
             # 建立table的同時自動生成 Primary Key 在第一個欄位
@@ -99,6 +99,8 @@ class DcmDataBase:
             self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zStudyDescription", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zSeriesDescription", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zStudyInstanceUID", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zSeriesInstanceUID", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zInstanceNumber", "TEXT")
@@ -106,7 +108,7 @@ class DcmDataBase:
     def createDBbyScan(self, path_to_scan=''):
         # scan for dicom files
         dcm_scan_list = scan_dcm(path_to_scan)
-        # pprint(dcm_scan_list)
+        pprint(dcm_scan_list)
 
         for ds_file in dcm_scan_list:
             try:
@@ -116,6 +118,8 @@ class DcmDataBase:
                 DcmTagNameDict = {
                     Tag(0x10, 0x20): 'PatientID',
                     Tag(0x10, 0x10): 'PatientName',
+                    Tag(0x08, 0x1030): 'studyDescription',
+                    Tag(0x08, 0x103E): 'seriesDescription',
                     Tag(0x20, 0x0D): 'studyInstanceUID',
                     Tag(0x20, 0x0E): 'seriesInstanceUID',
                     Tag(0x20, 0x13): 'instanceNumber',
@@ -128,23 +132,35 @@ class DcmDataBase:
                         else:
                             TagValDict.update({val: ds[key].value})
 
+                pprint(TagValDict)
+
                 dataTuple = (str(TagValDict['path']), TagValDict['PatientID'], str(TagValDict['PatientName']),
+                             TagValDict['studyDescription'], TagValDict['seriesDescription'],
                              TagValDict['studyInstanceUID'], TagValDict['seriesInstanceUID'],
                              TagValDict['instanceNumber'])
                 readyToInsertList.append(dataTuple)
-                # pprint(readyToInsertList)
+                pprint(readyToInsertList)
                 # 第一個欄位寫入NULL來避免修改自動生成的 Primary Key
-                sqlCmd = "INSERT INTO " + self.tableName + " VALUES (NULL, ?, ?, ?, ?, ?, ?)"
+                sqlCmd = "INSERT INTO " + self.tableName + " VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)"
                 self.sqlite.cur.executemany(sqlCmd, readyToInsertList)
                 self.sqlite.con.commit()
-                # print('Committed to DataBase!')
+                print('Committed to DataBase!')
             except Exception as e:
                 print("Invalid or Not DICOM:", ds_file, "->", e)
                 pass
 
+    def getGroup(self):
+        sql = "SELECT zInstanceNumber,zPath,zPatient_name,zStudyDescription,zSeriesDescription,group_concat(zSeriesInstanceUID) FROM TBImage GROUP BY zPath"
+        self.sqlite.cur.execute(sql)
+        print("GroupView:")
+        for value in self.sqlite.cur:
+            print(value)
+
 
 if __name__ == "__main__":
     # pathScan = r'D:\Users\user\Desktop\NTUCT\8252\Ct_Without_ContrastBrain - 16683\IAC_2'
-    pathScan = r'D:\Users\user\Desktop\NTUISO\CT1'
-    DcmDataBase(db_name='myDB').createDBbyScan(path_to_scan=pathScan)
+    pathScan = r'D:\Users\user\Desktop\NTUISO\CT5'
+    myDb = DcmDataBase(db_name='myDB')
+    myDb.createDBbyScan(path_to_scan=pathScan)
+    myDb.getGroup()
     print("Done")
