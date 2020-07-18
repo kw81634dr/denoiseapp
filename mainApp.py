@@ -118,6 +118,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     def addToDB(self, p):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")
         DcmDataBase(db_name='KW-DB').createDBbyScan(path_to_scan=p)
+        print("DB Imported!")
 
     def open_one_dcm(self):
         p = QFileDialog.getOpenFileName(self, 'choose DICOM File to Open', '', 'DICOM Image File (*.dcm)')[0]

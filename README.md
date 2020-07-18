@@ -16,6 +16,7 @@ python = 3.6 for vtk compatibility
 `vtk`
 `pillow`
 `tqdm`
+`chardet`
 
 
 # Features

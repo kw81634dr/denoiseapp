@@ -1,11 +1,15 @@
 import pydicom
 from pydicom.tag import Tag
 from pathlib import Path
-
+import chardet
+from pydicom.filebase import DicomBytesIO
+import warnings
 
 # filename = Path('/Volumes/dataMac/測試用dcm/5B3F22C1')
-# filename = Path('/Volumes/dataMac/測試用dcm/IM-0005-0001.dcm')
+# filename = Path(r'D:\Users\user\Desktop\NTUISO\kwmri\DICOM\ST000000\SE000005\MR000003.TRUE')
 filename = Path('IM-0008-0034.dcm')
+# coding = 'big5'
+coding = 'utf8'
 ds = pydicom.dcmread(str(filename))
 DcmTagValDict = {}
 DcmTagNameDict = {
@@ -28,7 +32,7 @@ for key, val in DcmTagNameDict.items():
     DcmTagValDict.update({'path': filename})
     if key in ds:
         if ds[key].VR == 'PN':
-            DcmTagValDict.update({val: ds[key].value.decode('utf8')})
+            DcmTagValDict.update({val: ds[key].value.decode(coding)})
         else:
             DcmTagValDict.update({val: ds[key].value})
 for k, v in DcmTagValDict.items():
