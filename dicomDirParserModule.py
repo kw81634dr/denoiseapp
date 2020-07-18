@@ -19,8 +19,8 @@ class DicomDirParser:
     def __init__(self, source='', destination=''):
         self.inputPath = Path(source).expanduser()
         self.outputPath = Path(destination).expanduser()
-        self.dcmDirFilePath = self.inputPath
-        # self.dcmDirFilePath = self.inputPath / "DICOMDIR"     # 測試用路徑, 自動加上DICOMDIR
+        # self.dcmDirFilePath = self.inputPath
+        self.dcmDirFilePath = self.inputPath / "DICOMDIR"     # 測試用路徑, 自動加上DICOMDIR
         """讀取DICOMDIR檔案,下一行是讀取 DICOMDIR 檔案的物件"""
         self.DICOMDIRFILE = read_dicomdir(self.dcmDirFilePath)
 
@@ -32,15 +32,15 @@ class DicomDirParser:
     def parseDIR(self):
         for patient_record in self.DICOMDIRFILE.patient_records:
             self.pathL1 = self.outputPath.joinpath(patient_record.PatientID)
-            # print('pathL1=', self.pathL1)
+            print('pathL1=', self.pathL1)
             studies = patient_record.children  # got through each study
             for study in studies:
                 self.pathL2 = self.pathL1.joinpath(study.StudyID)
-                # print('pathL2=', self.pathL2)
+                print('pathL2=', self.pathL2)
                 all_series = study.children  # go through each series
                 for series in all_series:
                     self.pathL3 = self.pathL2.joinpath('series-' + str(series.SeriesNumber))
-                    # print('pathL3=', self.pathL3)
+                    print('pathL3=', self.pathL3)
                     """建立目的地階層式目錄, 連同父階層建立, 若已存在則將覆蓋"""
                     try:
                         self.pathL3.mkdir(parents=True, exist_ok=True)
@@ -56,15 +56,16 @@ class DicomDirParser:
                     """複製影像到目標階層目錄"""
                     for old_filename in original_image_filenames:
                         new_filename = self.pathL3.joinpath(old_filename.name)
+                        print('Copy', old_filename, 'to', new_filename)
                         try:
-                            # shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
-                            print('Old', old_filename, 'to', new_filename)
+                            shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
                         except shutil.Error:
-                            # print(shutil.Error)
+                            print(shutil.Error)
                             pass
                         except FileNotFoundError:
-                            # print('File not Found')
+                            print('File not Found')
                             pass
+                print("Done")
 
 
 if __name__ == "__main__":
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     # 原因: 編譯器將路徑中的 C:\Users\ 視為Unicode-Escape編碼的跳脫字元
     # 因此\U被當成Unicode Code字串的起點，依照定義後面必需接8位數字 (ex. \U01000001) 來Decode
     # 在此後面接了一串字母，因此產生Decode失敗的錯誤訊息。
-    in_directory = r'D:\Users\user\Desktop\CT5'
+    in_directory = r'D:\Users\user\Desktop\NTUISO\CT1'
     out_directory = r'C:\Parsed'
     DicomDirParser(in_directory, out_directory).parseDIR()
     print("Done")
