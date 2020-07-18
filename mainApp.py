@@ -7,7 +7,7 @@ from PyQt5.Qt import QStandardItemModel
 from appUI import *
 from pathlib import Path
 # Custom Module
-from dcmModule import DcmViewCalibration
+from dcmModule import DcmViewCalibration, DcmDataBase
 from dicomDirParserModule import DicomDirParser
 from fileTreeModule import DcmItem
 
@@ -23,8 +23,6 @@ from fileTreeModule import DcmItem
 #             cnt = cnt+1
 #             time.sleep(0.3)
 #             self.sender.emit(cnt)   # 迴圈完畢後發出訊號
-
-
 
 
 def get_clicked_value(val):
@@ -98,8 +96,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         action_opnDcm = self.actionOpen_Single_Image
         action_opnDcm.triggered.connect(self.open_one_dcm)
         # Scan folder for dcm
-        action_ScanDcmDir = self.actionScan_Image_Folder
-        action_ScanDcmDir.triggered.connect(self.printDcmFilesPath)
+        action_ScanImgFolder = self.actionScan_Image_Folder
+        action_ScanImgFolder.triggered.connect(self.addToDB)
         # Parse DICOMDIR
         action_ParseDcmDir = self.actionParse_DICOMDIR
         action_ParseDcmDir.triggered.connect(self.parseDICOMDIR)
@@ -117,10 +115,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         if Path(p).stem == 'DICOMDIR':
             DicomDirParser(source=p, destination=p).parseDIR()
 
-    def printDcmFilesPath(self, p):
+    def addToDB(self, p):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to Scan for DICOM")
-        gg = DcmViewCalibration.scan_for_dcm(p)
-        print(*gg, sep='\n')
+        DcmDataBase(db_name='KW-DB').createDBbyScan(path_to_scan=p)
 
     def open_one_dcm(self):
         p = QFileDialog.getOpenFileName(self, 'choose DICOM File to Open', '', 'DICOM Image File (*.dcm)')[0]

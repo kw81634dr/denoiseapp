@@ -2,6 +2,8 @@
 
 import os
 import sqlite3
+import datetime
+import time
 
 
 class SQLiteTools():
@@ -269,15 +271,19 @@ if __name__ == '__main__':
         def addData(self):
             self.sqlite.addSQLtableColumn(self.tableName, "month1", "text")
             self.sqlite.addSQLtableColumn(self.tableName, "month2", "text")
-            self.sqlite.addSQLtableColumn(self.tableName, "month3", "text")
-            self.sqlite.addSQLtableColumn(self.tableName, "month4", "text")
+            self.sqlite.addSQLtableColumn(self.tableName, "date", "date")
 
-            self.sqlite.addSQLtableRow(self.tableName, 30)
+            self.sqlite.addSQLtableRow(self.tableName, 4)
 
             self.sqlite.setSQLtableValue(self.tableName, "month1", 0, "姓名")
             self.sqlite.setSQLtableValue(self.tableName, "month1", 1, "1-1")
             self.sqlite.setSQLtableValue(self.tableName, "month2", 2, "2-2")
             self.sqlite.setSQLtableValue(self.tableName, "month2", 3, "2-3")
+
+            data = [("Ride", "a", datetime.date(1994, 5, 5)),
+                    ("Water", "b", datetime.date(2017, 1, 2))]
+            self.sqlite.cur.executemany("INSERT INTO files VALUES (NULL, ?, ?, ?)", data)
+            self.sqlite.con.commit()
 
         # 获取数据
         def getData(self):

@@ -25,6 +25,7 @@ DcmTagNameDict = {
     Tag(0x08, 0x30): 'StudyTime',
 }
 for key, val in DcmTagNameDict.items():
+    DcmTagValDict.update({'path': filename})
     if key in ds:
         if ds[key].VR == 'PN':
             DcmTagValDict.update({val: ds[key].value.decode('utf8')})
