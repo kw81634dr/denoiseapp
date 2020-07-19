@@ -43,9 +43,8 @@ class SQLiteTools():
         """
         # CREATE TABLE if not exists 表名 (ID INTEGER PRIMARY KEY AUTOINCREMENT);
         if with_unique:
-            unique_name = "\"unique_column_name\""
-            sql = u"CREATE TABLE " + tbname + u"(\"ID\" INTEGER," + unique_name + " " + \
-                  unique_datatype + " UNIQUE,PRIMARY KEY(\"ID\" AUTOINCREMENT)); "
+            sql = "CREATE TABLE "+tbname+" (ID INTEGER, "+unique_name+" "+unique_datatype+" UNIQUE, PRIMARY KEY(ID AUTOINCREMENT));"
+            # sql = "CREATE TABLE files (ID INTEGER, zUUID TEXT UNIQUE, PRIMARY KEY (ID AUTOINCREMENT));"
         else:
             sql = u"CREATE TABLE if not exists " + tbname + u" (ID INTEGER PRIMARY KEY AUTOINCREMENT);"
         self.cur.execute(sql)
@@ -280,7 +279,7 @@ if __name__ == '__main__':
         # 创建表
         def createTable(self):
             if not self.sqlite.selectTableExist(self.tableName):
-                self.sqlite.createSQLtable(self.tableName, with_unique_id_column=True)
+                self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zUUID', unique_datatype='TEXT')
 
         # 添加数据
         def addData(self):

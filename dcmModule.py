@@ -131,13 +131,15 @@ class DcmDataBase:
                         else:
                             TagValDict.update({val: ds[key].value})
                 # pprint(TagValDict)
-                uuid = generate_uid(entropy_srcs=[str(TagValDict['PatientID']), TagValDict['studyInstanceUID'], TagValDict['seriesInstanceUID'], str(TagValDict['instanceNumber'])])
+                uuid = generate_uid(entropy_srcs=[str(TagValDict['PatientID']), TagValDict['studyInstanceUID'],
+                                                  TagValDict['seriesInstanceUID'], str(TagValDict['instanceNumber'])])
 
-                dataTuple = (str(uuid), str(TagValDict['path']), TagValDict['PatientID'], str(TagValDict['PatientName']),
-                             TagValDict['studyDescription'], TagValDict['seriesDescription'],
-                             TagValDict['studyInstanceUID'], TagValDict['seriesInstanceUID'],
-                             TagValDict['instanceNumber'])
+                dataTuple = (str(uuid), str(TagValDict['path']), TagValDict['PatientID'],
+                             str(TagValDict['PatientName']), TagValDict['studyDescription'],
+                             TagValDict['seriesDescription'], TagValDict['studyInstanceUID'],
+                             TagValDict['seriesInstanceUID'],TagValDict['instanceNumber'])
         # ----------end of prepare data to writ into DB--------
+
                 readyToInsertList.append(dataTuple)     # data ready to write into DB
                 # pprint(readyToInsertList)
             except Exception as e:
@@ -162,9 +164,11 @@ class DcmDataBase:
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zStusyDescription", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zStudyDescription", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
-        sql_cmd_group_by_series="SELECT zSeriesInstanceUID,zPatient_name,zPatient_id,zSeriesDescription,group_concat(zPath) FROM "+from_table_name+" GROUP BY zSeriesInstanceUID  ORDER BY zPatient_name ASC"
+        sql_cmd_group_by_series="SELECT zSeriesInstanceUID,zPatient_name,zPatient_id,zSeriesDescription,group_concat(" \
+                                "zPath) FROM "+from_table_name+" GROUP BY zSeriesInstanceUID  ORDER BY zPatient_name " \
+                                                               "ASC "
         self.sqlite.cur.execute(sql_cmd_group_by_series)
         series_list = [value for value in self.sqlite.cur]
         # print(series_list)
@@ -182,9 +186,10 @@ class DcmDataBase:
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zStusyDescription", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zStudyDescription", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
-        sql_cmd_group_by_study = "SELECT zStudyInstanceUID,zPatient_name,zPatient_id,zStudyDescription,group_concat(zPath) FROM TBImage GROUP BY zStudyInstanceUID  ORDER BY zPatient_name ASC"
+        sql_cmd_group_by_study = "SELECT zStudyInstanceUID,zPatient_name,zPatient_id,zStudyDescription,group_concat(" \
+                                 "zPath) FROM TBImage GROUP BY zStudyInstanceUID  ORDER BY zPatient_name ASC "
         self.sqlite.cur.execute(sql_cmd_group_by_study)
         study_list = [value for value in self.sqlite.cur]
         sq = "INSERT OR IGNORE INTO TBStudy VALUES (NULL, ?, ?, ?, ?, ?)"
@@ -196,7 +201,10 @@ class DcmDataBase:
 if __name__ == "__main__":
     pathScan = r'D:\Users\user\Desktop\NTUCT'
     # pathScan = r'D:\Users\user\Desktop\NTUISO\CT5'
-    myDb = DcmDataBase(db_name='DBgenByDcmMudole')
+    # pathScan = r'D:\Users\user\Desktop\NTUISO\CT1'
+    # pathScan = r'D:\Users\user\Desktop\NTUISO\MR'
+    # pathScan = r'D:\Users\user\Desktop\kwmri'
+    myDb = DcmDataBase(db_name='DBgenByDcmModule')
     myDb.createDBbyScan(path_to_scan=pathScan)
     # myDb.genSeriesTable()
     print("Done")
