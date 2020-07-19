@@ -133,7 +133,9 @@ dmypy.json
 .idea/
 
 # Files for testing purpose
-/*.db
+/.db
 /inference/
 /IM-0008-0034.dcm
 /IAC_2/
+*.db
+.db
