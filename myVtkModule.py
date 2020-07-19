@@ -11,13 +11,13 @@ from pathlib import Path
 
 
 class DcmViewFrame(QFrame):
-    def __init__(self, parent=None, dcm_dir='', view_plane='Transverse'):
+    def __init__(self, dcm_dir='', view_plane='Transverse'):
         """
         建立DICOM VTK 畫布
-        :param dcm_dir: 数据表名称
-        :param view_plane: 切面,可選'Transverse'(預設) 'Coronal' 'Sagittal'
+        :param dcm_dir: 影像路徑
+        :param view_plane: 切面:預設'Transverse',可選'Coronal','Sagittal'
         """
-        QFrame.__init__(self, parent)
+        QFrame.__init__(self, parent=None)
         self.vl = QtWidgets.QVBoxLayout()
         self.vtkWidget = QVTKRenderWindowInteractor(self)
         self.vl.addWidget(self.vtkWidget)
@@ -88,15 +88,16 @@ class DcmViewFrame(QFrame):
         self.vtkWidget.AddObserver(vtk.vtkCommand.KeyPressEvent, self.keyboard_callback_func)
         self.cam = self.renderer.GetActiveCamera()
         if self.viewPlane == 'Coronal':
-        # self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
-        # self.cam.SetPosition(0, 0, -1)  # Camera in Z so it display XY planes. # 设观察对象位
+            # self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
+            # self.cam.SetPosition(0, 0, -1)  # Camera in Z so it display XY planes. # 设观察对象位
             self.cam.SetViewUp(0, 0, -1)    # Up direction is the X not the y. #(0,0,-1) for Coronal plane
         # self.cam.ComputeViewPlaneNormal()  # 自动
 
         self.renderer.ResetCamera()
-        self.frame.setLayout(self.vl)
-        self.setCentralWidget(self.frame)
+        self.setLayout(self.vl)
+        # self.show()
         self.inter.Initialize()
+
 
     def keyboard_callback_func(self, obj, event_id):
         print(obj.GetKeySym())

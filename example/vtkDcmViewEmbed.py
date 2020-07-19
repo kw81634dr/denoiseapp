@@ -25,12 +25,12 @@ from pathlib import Path
 
 class DcmViewFrame(QtWidgets.QMainWindow):
     def __init__(self, parent=None, dcm_dir='', view_plane='Transverse'):
-        QtWidgets.QMainWindow.__init__(self, parent)
         """
         建立DICOM VTK 畫布
-        :param dcm_dir: 数据表名称
-        :param view_plane: 切面,可選'Transverse'(預設) 'Coronal' 'Sagittal'
+        :param dcm_dir: 影像路徑
+        :param view_plane: 切面:預設'Transverse',可選'Coronal','Sagittal'
         """
+        QtWidgets.QMainWindow.__init__(self, parent)
         self.frame = QtWidgets.QFrame()
         self.vl = QtWidgets.QVBoxLayout()
         self.vtkWidget = QVTKRenderWindowInteractor(self)
@@ -131,5 +131,5 @@ class DcmViewFrame(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     path = r"D:\Users\user\Desktop\NTUCT\8252\Ct_Without_ContrastBrain - 16683\IAC_2"
-    window = DcmViewFrame(dcm_dir=path)
+    window = DcmViewFrame(dcm_dir=path, view_plane='')
     sys.exit(app.exec_())

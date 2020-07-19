@@ -12,7 +12,9 @@ from dicomDirParserModule import DicomDirParser
 from fileTreeModule import DcmItem,MyItem
 import numpy as np
 import cv2
-import pprint
+from pprint import pprint
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from myVtkModule import DcmViewFrame
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -44,6 +46,14 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(QApplication.style().standardIcon(QStyle.SP_TitleBarMenuButton))
         self.setWindowTitle('KW De-noise App')
         self.statusBar().showMessage('Status Here')
+
+        self.frame = QtWidgets.QFrame()
+        self.vl = QtWidgets.QVBoxLayout()
+        # self.vtkWidget = QVTKRenderWindowInteractor(self)
+        # self.vl.addWidget(self.vtkWidget)
+        # self.frame.setLayout(self.vl)
+        # self.setCentralWidget(self.frame)
+
         # #KW Custom UI Marco
         self.make_app_in_screen_center()
         self.init_toolbar()
@@ -53,15 +63,16 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.treeView.setModel(self.dirModel)
         # self.treeView.doubleClicked.connect(self.get_selected_item_path) # 只能連接一次不然會執行多次
         self.treeView.clicked.connect(self.get_selected_item_path)
-        self.treeView.selectionModel().selectionChanged.connect(self.get_change)
+        # self.treeView.selectionModel().selectionChanged.connect(self.get_change)
         # self.getSeriesFromDB()
 
     def get_change(self, selected, deselected):
-        print(selected.index)
-        file_path = self.dirModel.filePath(selected)
-        # print(file_path)
-        self.open_dcm_onlick(file_path)
-        # return file_path
+        indexes = []
+        for index in selected.indexes():
+            if index.column() == 0:
+                indexes.append(index)
+        pprint(indexes)
+        return indexes
 
     def addItems(self, parent, elements):
         for text, children in elements:
@@ -88,23 +99,23 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         action_exit_app = self.actionExit
         action_exit_app.triggered.connect(qApp.quit)
         # Open Single Dcm
-        action_opnDcm = self.actionOpen_Single_Image
-        action_opnDcm.triggered.connect(self.openDirUpdateView)
+        action_openOneImg = self.actionOpen_Single_Image
+        action_openOneImg.triggered.connect(self.open_one_dcm)
         # Scan folder for dcm
-        action_ScanImgFolder = self.actionScan_Image_Folder
-        action_ScanImgFolder.triggered.connect(self.addToDB)
+        action_openSeries = self.actionOpen_Series_Folder
+        action_openSeries.triggered.connect(self.openDirUpdateView)
         # Parse DICOMDIR
         action_ParseDcmDir = self.actionParse_DICOMDIR
         action_ParseDcmDir.triggered.connect(self.parseDICOMDIR)
         """" Set Keyboard Short Cut for actions"""
-        action_opnDcm.setShortcut(QKeySequence.Open)
+        action_openOneImg.setShortcut(QKeySequence.Open)
         """Link actions to ToolBar as Buttons"""
-        toolbar.addAction(action_opnDcm)
-        toolbar.addAction(action_ScanImgFolder)
+        toolbar.addAction(action_openOneImg)
+        toolbar.addAction(action_openSeries)
         toolbar.addAction(action_ParseDcmDir)
         """"Set ToolBar Buttons Icon"""
-        action_opnDcm.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogOpenButton))
-        action_ScanImgFolder.setIcon(QApplication.style().standardIcon(QStyle.SP_FileDialogContentsView))
+        action_openOneImg.setIcon(QApplication.style().standardIcon(QStyle.SP_ComputerIcon))
+        action_openSeries.setIcon(QApplication.style().standardIcon(QStyle.SP_DialogOpenButton))
         action_ParseDcmDir.setIcon(QApplication.style().standardIcon(QStyle.SP_DriveCDIcon))
 
     def parseDICOMDIR(self):
@@ -122,7 +133,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def getSeriesFromDB(self):
         print('getSeriesFromDB')
-
         sql_cmd="SELECT zPatient_name,zPatient_id,zSeriesDescription, zPath FROM TBSeries ORDER BY zPatient_name ASC"
         self.myDB.sqlite.cur.execute(sql_cmd)
         series_list = [value for value in self.myDB.sqlite.cur]
@@ -130,13 +140,18 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # print(self.myDB.sqlite.getSQLtableColumn('TBStudy', 'zPatient_id'))
         # print(self.myDB.sqlite.getSQLtableColumn('TBSeries', 'zSeriesDescription'))
 
-
     def openDirUpdateView(self):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to View DICOM")
         if p != '':
             self.dirModel.setRootPath(p)
             self.treeView.setRootIndex(self.dirModel.index(p))
             self.treeView.expandAll()
+            tkview = DcmViewFrame(dcm_dir=p, view_plane='Transverse')
+            self.vl.addWidget(tkview)
+            self.frame.setLayout(self.vl)
+            self.setCentralWidget(self.frame)
+
+
 
     def open_dcm_onlick(self, p):
         if Path(p).is_file():
@@ -169,7 +184,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def get_selected_item_path(self, signal):
         file_path = self.dirModel.filePath(signal)
-        # print(file_path)
+        print('get_selected', file_path)
         self.open_dcm_onlick(file_path)
         # return file_path
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1008</width>
-    <height>667</height>
+    <width>1123</width>
+    <height>671</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1008</width>
+     <width>1123</width>
      <height>21</height>
     </rect>
    </property>
@@ -39,7 +39,7 @@
       <string>Open DICOM</string>
      </property>
      <addaction name="actionOpen_Single_Image"/>
-     <addaction name="actionScan_Image_Folder"/>
+     <addaction name="actionOpen_Series_Folder"/>
     </widget>
     <addaction name="menuOpen_DICOM"/>
     <addaction name="menuImport_DICOM_files"/>
@@ -169,12 +169,12 @@
   </action>
   <action name="actionOpen_Single_Image">
    <property name="text">
-    <string>Single Image File</string>
+    <string>Image File</string>
    </property>
   </action>
-  <action name="actionScan_Image_Folder">
+  <action name="actionOpen_Series_Folder">
    <property name="text">
-    <string>by Scanning a Folder</string>
+    <string>Series Folder</string>
    </property>
   </action>
   <action name="actionAbout">
