@@ -1,11 +1,6 @@
 #!/usr/bin/env python
-
-import sys
-import vtk
-from PyQt5 import QtCore, QtWidgets
-from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from vtkmodules import vtkInteractionStyle
 """
+
 在讀入圖像後，依次建立
 vtkImageActor（vtk圖像演員），
 vtkRender（vtk渲染），
@@ -17,58 +12,67 @@ vtkRenderWindowInteractor（vtk渲染窗口交互器）
 ***需要注意的是，vtkImageActor接收的圖像vtkImageData數據類型必須為unsigned char類型，
 因此在顯示之前，必要的時候需要利用vtkImageCast將圖像數據類型轉換為unsigned char。
 """
+# # ********這是整理過後的版本*******
+import sys
+import vtk
+from PyQt5 import QtCore, QtWidgets
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtkmodules import vtkInteractionStyle
+from vtkmodules.vtkIOImage import vtkDICOMImageReader
+from PyQt5.QtWidgets import QFrame
+from pathlib import Path
 
 
-class MainWindow(QtWidgets.QMainWindow):
-
-    def __init__(self, parent=None):
+class DcmViewFrame(QtWidgets.QMainWindow):
+    def __init__(self, parent=None, dcm_dir='', view_plane='Transverse'):
         QtWidgets.QMainWindow.__init__(self, parent)
+        """
+        建立DICOM VTK 畫布
+        :param dcm_dir: 数据表名称
+        :param view_plane: 切面,可選'Transverse'(預設) 'Coronal' 'Sagittal'
+        """
         self.frame = QtWidgets.QFrame()
         self.vl = QtWidgets.QVBoxLayout()
-        # self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
-        self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
+        self.vtkWidget = QVTKRenderWindowInteractor(self)
         self.vl.addWidget(self.vtkWidget)
 
-        self.dicom_image_path = './IM-0008-0034.dcm'
+        if dcm_dir != '':
+            self.dcm_series_path = Path(dcm_dir).expanduser()
 
-        # '----------set up dicom reader---------------'
-        self.dcmReader = vtk.vtkDICOMImageReader()
+        # set up VTK dicom reader
+        self.dcmReader = vtkDICOMImageReader()
         self.dcmReader.SetDataByteOrderToLittleEndian()
-        self.dcmReader.SetDirectoryName(r"D:\Users\user\Desktop\NTUCT\1323\Ct_Without_ContrastBrain - 1323\InnerEar_C_06_U70u_4")
+        self.dcmReader.SetDirectoryName(str(self.dcm_series_path))
         self.dcmRescaleSlope = self.dcmReader.GetRescaleSlope()
         self.dcmRescaleOffset = self.dcmReader.GetRescaleOffset()
         self.dcmReader.Update()
-        # '------deal with WW & WL-----'
-        self.ww = 2000  # WW
+        # '------default with WW & WL-----'
+        self.ww = 3500  # WW
         self.wl = 600  # WL
-        # windowlevel = vtkImageMapToWindowLevelColors()
-        # windowlevel.SetInput(reader.GetOutput())
         # '----------viewer---------'
         self.dcmViewer = vtk.vtkImageViewer2()
         self.dcmViewer.SetInputConnection(self.dcmReader.GetOutputPort())
         self.dcmViewer.SetColorLevel(500)
         self.dcmViewer.SetColorWindow(3500)
         self.dcmViewer.SetSize(600, 600)
-
         self.dcmViewer.UpdateDisplayExtent()
-        self.dcmViewer.SetRenderWindow(self.vtkWidget.GetRenderWindow())  # !這行確保不會多渲染出一個視窗物件!
-        # self.dcmViewer.SetSliceOrientationToXZ()  # 冠狀面 (Coronal plane)
-        self.dcmViewer.SetSliceOrientationToYZ()    # 縱切面 (Sagittal plane)
-        # self.dcmViewer.SetSliceOrientationToXY()  # 橫狀面 (Transverse plane)
-
-
-        ######Get RENDERER?????###############
-        self.renderer = self.dcmViewer.GetRenderer()
-        self.renwin = self.vtkWidget.GetRenderWindow()
-
-        self.renwin.AddRenderer(self.renderer)
-        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
+        # #!下面那一行確保不會多渲染出一個視窗物件! ##
+        self.dcmViewer.SetRenderWindow(self.vtkWidget.GetRenderWindow())  # #!這一行確保不會多渲染出一個視窗物件! # #
+        # #!上面那一行確保不會多渲染出一個視窗物件! ##
+        #   下面三個方法可渲染不同人體不同的切面
+        self.viewPlane = view_plane
+        if self.viewPlane == 'Coronal':
+            self.dcmViewer.SetSliceOrientationToXZ()  # 冠狀面 (Coronal plane)
+        elif self.viewPlane == 'Sagittal':
+            self.dcmViewer.SetSliceOrientationToYZ()  # 縱切面 (Sagittal plane)
+        else:
+            self.dcmViewer.SetSliceOrientationToXY()  # Default: 橫狀面 (Transverse plane)
 
         # '----------TextOverLay---------'
         # slice status message
         self.sliceTextProp = vtk.vtkTextProperty()
         self.sliceTextProp.SetFontFamilyToCourier()
-        self.sliceTextProp.SetFontSize(20)
+        self.sliceTextProp.SetFontSize(60)
         self.sliceTextProp.SetVerticalJustificationToBottom()
         self.sliceTextProp.SetJustificationToLeft()
         # '---------set up Text Overlay mapper----------'
@@ -76,56 +80,56 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_slice = self.dcmViewer.GetSlice()
         print('cur_slice  = ', self.current_slice, ' viewer.GetSliceMax() = ', self.dcmViewer.GetSliceMax())
         msg = (' %d / %d ' % (self.dcmViewer.GetSlice() + 1, self.dcmViewer.GetSliceMax() + 1))
-        # '---------set up Text Overlay Actor----------'
         self.sliceTextMapper.SetInput(msg)
-        sliceTextActor = vtk.vtkActor2D()
-        sliceTextActor.SetMapper(self.sliceTextMapper)
-        sliceTextActor.SetPosition(15, 10)
-        # '---------End of Text Overlay mapper----------'
+        # '---------set up Text Overlay Actor----------'
+        self.sliceTextActor = vtk.vtkActor2D()
+        self.sliceTextActor.SetMapper(self.sliceTextMapper)
+        self.sliceTextActor.SetPosition(15, 10)
 
+        # ########--Get RENDERER--############
+        self.renderer = self.dcmViewer.GetRenderer()
+        self.renderer.AddActor2D(self.sliceTextActor)
+        # ########--Set Up RENDER Window--############
+        self.renderWindow = self.vtkWidget.GetRenderWindow()
+        self.renderWindow.AddRenderer(self.renderer)
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
         # '---------    Interactor  ----------'
-        self.inter = self.renwin.GetInteractor()
-        self.inter.SetInteractorStyle(vtkInteractionStyle.vtkInteractorStyleImage())  # ----!Stay in 2D View!-----
+        self.inter = self.renderWindow.GetInteractor()
+        # ----!Stay in 2D View!-----
+        self.inter.SetInteractorStyle(vtkInteractionStyle.vtkInteractorStyleImage())
 
         # '----------add keyboard observer---------'
-        # self.dcmViewer.GetRenderer().AddActor2D(sliceTextActor)
-        self.renderer.AddActor2D(sliceTextActor)
         self.vtkWidget.AddObserver(vtk.vtkCommand.KeyPressEvent, self.keyboard_callback_func)
-        # self.vtkWidget.AddObserver(vtk.vtkCommand.MouseWheelForwardEvent, self.keyboard_callback_func)
-
         self.cam = self.renderer.GetActiveCamera()
-        # self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
-        # self.cam.SetPosition(0, 0, -1)  # Camera in Z so it display XY planes. # 设观察对象位
-        self.cam.SetViewUp(0, 0, -1)    # Up direction is the X not the y. #(0,0,-1) for Coronal plane
+        if self.viewPlane == 'Coronal':
+            # self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
+            # self.cam.SetPosition(0, 0, -1)  # Camera in Z so it display XY planes. # 设观察对象位
+            self.cam.SetViewUp(0, 0, -1)  # Up direction is the X not the y. #(0,0,-1) for Coronal plane
         # self.cam.ComputeViewPlaneNormal()  # 自动
 
         self.renderer.ResetCamera()
         self.frame.setLayout(self.vl)
         self.setCentralWidget(self.frame)
-
         self.show()
-
         self.inter.Initialize()
-        # self.inter.Start()
 
     def keyboard_callback_func(self, obj, event_id):
         print(obj.GetKeySym())
         cur_slice = self.dcmViewer.GetSlice()
-        if obj.GetKeySym() == obj.GetKeySym() == 'Down':
+        if obj.GetKeySym() == 'Right' or obj.GetKeySym() == 'Down':
             cur_slice = (cur_slice + 1) % (self.dcmViewer.GetSliceMax() + 1)
             self.dcmViewer.SetSlice(cur_slice)
-
-        if obj.GetKeySym() == obj.GetKeySym() == 'Up':
+        if obj.GetKeySym() == 'Left' or obj.GetKeySym() == 'Up':
             cur_slice = (cur_slice + self.dcmViewer.GetSliceMax()) % (self.dcmViewer.GetSliceMax() + 1)
             self.dcmViewer.SetSlice(cur_slice)
-
         msg = (' %d / %d ' % (cur_slice + 1, self.dcmViewer.GetSliceMax() + 1))
         print(msg)
         self.sliceTextMapper.SetInput(msg)
-        self.renwin.Render()
+        self.renderWindow.Render()
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
+    path = r"D:\Users\user\Desktop\NTUCT\8252\Ct_Without_ContrastBrain - 16683\IAC_2"
+    window = DcmViewFrame(dcm_dir=path)
     sys.exit(app.exec_())
