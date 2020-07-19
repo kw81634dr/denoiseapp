@@ -22,13 +22,13 @@ python = 3.6 for vtk compatibility
 # Features
 ## 1.Dicom I/O
 - [x] Open single Dicom Images
-- [ ] Open Dicom series to `Sqlite`
+- [x] Load Dicom series to `Sqlite`
 - [ ] Dicom series in Tree-view
 
 ##### DICOMDIR
 - [x] Parse `DICOMDIR` File
-- [ ] `DICOMDIR` to DataBase `Sqlite`
-- [ ] Open from CD/DVD & parse `DIOCMDIR`
+- [x] `DICOMDIR` to DataBase `Sqlite`
+- [x] Open from CD/DVD & parse `DIOCMDIR`
 - [x] Duplicate Dcm Files to Hierarchy Folder according to `DICOMDIR`
 
 ##### Viewer

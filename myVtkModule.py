@@ -88,10 +88,10 @@ class DcmViewFrame(QFrame):
         self.vtkWidget.AddObserver(vtk.vtkCommand.KeyPressEvent, self.keyboard_callback_func)
         self.cam = self.renderer.GetActiveCamera()
         if self.viewPlane == 'Coronal':
-            # self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
+            self.cam.SetFocalPoint(0, 0, 0)     # 设焦点
             # self.cam.SetPosition(0, 0, -1)  # Camera in Z so it display XY planes. # 设观察对象位
             self.cam.SetViewUp(0, 0, -1)    # Up direction is the X not the y. #(0,0,-1) for Coronal plane
-        # self.cam.ComputeViewPlaneNormal()  # 自动
+        self.cam.ComputeViewPlaneNormal()  # 自动
 
         self.renderer.ResetCamera()
         self.setLayout(self.vl)
@@ -99,7 +99,7 @@ class DcmViewFrame(QFrame):
         self.inter.Initialize()
 
     def keyboard_callback_func(self, obj, event_id):
-        print(obj.GetKeySym())
+        # print(obj.GetKeySym())
         cur_slice = self.dcmViewer.GetSlice()
         if obj.GetKeySym() == 'Right' or obj.GetKeySym() == 'Down':
             cur_slice = (cur_slice + 1) % (self.dcmViewer.GetSliceMax() + 1)
@@ -108,7 +108,7 @@ class DcmViewFrame(QFrame):
             cur_slice = (cur_slice + self.dcmViewer.GetSliceMax()) % (self.dcmViewer.GetSliceMax() + 1)
             self.dcmViewer.SetSlice(cur_slice)
         msg = (' %d / %d ' % (cur_slice + 1, self.dcmViewer.GetSliceMax() + 1))
-        print(msg)
+        # print(msg)
         self.sliceTextMapper.SetInput(msg)
         self.renderWindow.Render()
 

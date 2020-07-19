@@ -1,20 +1,19 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QAction, QDirModel, QStyle, QToolBar, qApp, \
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QStyle, QToolBar, qApp, \
     QDesktopWidget, QMessageBox
-from PyQt5.QtGui import QKeySequence, QFont, QColor
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.Qt import QStandardItemModel, QStandardItem, QSqlQueryModel, QFileSystemModel
-from appUI import *
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtCore import Qt, QThread
+from PyQt5.Qt import QStandardItem, QFileSystemModel
 from pathlib import Path
-# Custom Module
-from dcmModule import DcmViewCalibration, DcmDataBase
-from dicomDirParserModule import DicomDirParser
-from fileTreeModule import DcmItem,MyItem
+from pprint import pprint
 import numpy as np
 import cv2
-from pprint import pprint
-from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+# # Custom Module
+from dcmModule import DcmViewCalibration, DcmDataBase
+from dicomDirParserModule import DicomDirParser
 from myVtkModule import DcmViewFrame
+# # UI stuff
+from appUI import *
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -49,10 +48,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         self.frame = QtWidgets.QFrame()
         self.vl = QtWidgets.QVBoxLayout()
-        # self.vtkWidget = QVTKRenderWindowInteractor(self)
-        # self.vl.addWidget(self.vtkWidget)
-        # self.frame.setLayout(self.vl)
-        # self.setCentralWidget(self.frame)
+        self.hl = QtWidgets.QHBoxLayout()
 
         # #KW Custom UI Marco
         self.make_app_in_screen_center()
@@ -121,7 +117,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     def parseDICOMDIR(self):
         source, _ = QFileDialog.getOpenFileName(self, 'Open \"DICOMDIR\" File', 'DICOMDIR', 'DICOMDIR File (*)')
         destination_path = QFileDialog.getExistingDirectory(self, 'select Destination to store parsed Dicom images')
-        if source != '':
+        if source != '' and destination_path != '':
             s = str((Path(source)).parent)
             DicomDirParser(source=s, destination=destination_path).parseDIR()
 
@@ -147,8 +143,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.treeView.setRootIndex(self.dirModel.index(p))
             self.treeView.expandAll()
             tkview = DcmViewFrame(dcm_dir=p, view_plane='Transverse')
-            self.vl.addWidget(tkview)
-            self.frame.setLayout(self.vl)
+            self.hl.addWidget(tkview)
+            self.frame.setLayout(self.hl)
             self.setCentralWidget(self.frame)
 
     def open_dcm_onlick(self, p):
