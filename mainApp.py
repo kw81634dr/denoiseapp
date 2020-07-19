@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QAction, QDi
     QDesktopWidget, QMessageBox
 from PyQt5.QtGui import QKeySequence, QFont, QColor
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.Qt import QStandardItemModel, QStandardItem, QSqlQueryModel,QFileSystemModel
+from PyQt5.Qt import QStandardItemModel, QStandardItem, QSqlQueryModel, QFileSystemModel
 from appUI import *
 from pathlib import Path
 # Custom Module
@@ -47,14 +47,14 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # #KW Custom UI Marco
         self.make_app_in_screen_center()
         self.init_toolbar()
-        self.DBName = 'DCMDB'
+        self.DBName = 'kwDCMDB'
         self.myDB = DcmDataBase(db_name=self.DBName)
         self.dirModel = QFileSystemModel()
         self.treeView.setModel(self.dirModel)
         # self.treeView.doubleClicked.connect(self.get_selected_item_path) # 只能連接一次不然會執行多次
         self.treeView.clicked.connect(self.get_selected_item_path)
         self.treeView.selectionModel().selectionChanged.connect(self.get_change)
-        self.getSeriesFromDB()
+        # self.getSeriesFromDB()
 
     def get_change(self, selected, deselected):
         print(selected.index)
