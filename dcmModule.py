@@ -95,7 +95,7 @@ class DcmDataBase:
         self.tableName = table_name
         if not self.sqlite.selectTableExist(table_name):
             # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zUUID', unique_datatype='TEXT')
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, col_name='zUUID', datatype='TEXT')
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
@@ -137,7 +137,7 @@ class DcmDataBase:
                 dataTuple = (str(uuid), str(TagValDict['path']), TagValDict['PatientID'],
                              str(TagValDict['PatientName']), TagValDict['studyDescription'],
                              TagValDict['seriesDescription'], TagValDict['studyInstanceUID'],
-                             TagValDict['seriesInstanceUID'],TagValDict['instanceNumber'])
+                             TagValDict['seriesInstanceUID'], TagValDict['instanceNumber'])
         # ----------end of prepare data to writ into DB--------
 
                 readyToInsertList.append(dataTuple)     # data ready to write into DB
@@ -160,7 +160,7 @@ class DcmDataBase:
         con = self.sqlite.createConnection(self.DB_File)
         if not self.sqlite.selectTableExist(table_name):
             # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zSeriesInstanceUID', unique_datatype='TEXT')
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, col_name='zSeriesInstanceUID', datatype='TEXT')
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
@@ -182,7 +182,7 @@ class DcmDataBase:
         con = self.sqlite.createConnection(self.DB_File)
         if not self.sqlite.selectTableExist(table_name):
             # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zStudyInstanceUID', unique_datatype='TEXT')
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, col_name='zStudyInstanceUID', datatype='TEXT')
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
@@ -199,12 +199,11 @@ class DcmDataBase:
 
 
 if __name__ == "__main__":
-    pathScan = r'D:\Users\user\Desktop\NTUCT'
+    # pathScan = r'D:\Users\user\Desktop\NTUCT'
     # pathScan = r'D:\Users\user\Desktop\NTUISO\CT5'
-    # pathScan = r'D:\Users\user\Desktop\NTUISO\CT1'
+    pathScan = r'D:\Users\user\Desktop\NTUISO\CT1'
     # pathScan = r'D:\Users\user\Desktop\NTUISO\MR'
     # pathScan = r'D:\Users\user\Desktop\kwmri'
     myDb = DcmDataBase(db_name='DBgenByDcmModule')
     myDb.createDBbyScan(path_to_scan=pathScan)
-    # myDb.genSeriesTable()
     print("Done")

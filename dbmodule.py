@@ -33,17 +33,17 @@ class SQLiteTools():
         else:
             return False
 
-    def createSQLtable(self, tbname, with_unique=False, unique_name='', unique_datatype='TEXT'):
+    def createSQLtable(self, tbname, with_unique=False, col_name='', datatype='TEXT'):
         """
         创建通用数据表，默认第一列为主键，名称:ID，类型:INTEGER, 自增
         :param tbname: 資料表名稱
         :param with_unique: 是否建立'值'不能重複的UNIQUE直欄?
-        :param unique_name: UNIQUE直欄的名稱
-        :param unique_datatype: UNIQUE直欄的資料類型
+        :param col_name: UNIQUE直欄的名稱
+        :param datatype: UNIQUE直欄的資料類型
         """
         # CREATE TABLE if not exists 表名 (ID INTEGER PRIMARY KEY AUTOINCREMENT);
         if with_unique:
-            sql = "CREATE TABLE "+tbname+" (ID INTEGER, "+unique_name+" "+unique_datatype+" UNIQUE, PRIMARY KEY(ID AUTOINCREMENT));"
+            sql = "CREATE TABLE "+tbname+" (ID INTEGER, "+col_name+" "+datatype+" UNIQUE, PRIMARY KEY(ID AUTOINCREMENT));"
             # sql = "CREATE TABLE files (ID INTEGER, zUUID TEXT UNIQUE, PRIMARY KEY (ID AUTOINCREMENT));"
         else:
             sql = u"CREATE TABLE if not exists " + tbname + u" (ID INTEGER PRIMARY KEY AUTOINCREMENT);"
