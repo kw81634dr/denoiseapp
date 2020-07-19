@@ -12,7 +12,7 @@ from dicomDirParserModule import DicomDirParser
 from fileTreeModule import DcmItem,MyItem
 import numpy as np
 import cv2
-
+import pprint
 
 # class PBarThreadClass(QThread):
 #     sender = pyqtSignal(int)
@@ -54,25 +54,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # self.treeView.doubleClicked.connect(self.get_selected_item_path) # 只能連接一次不然會執行多次
         self.treeView.clicked.connect(self.get_selected_item_path)
         self.treeView.selectionModel().selectionChanged.connect(self.get_change)
-
-        """TreeView"""
-        # Tree-view model
-
-        # rootNode = treeModel.invisibleRootItem()
-        '''self.path = data[0]
-        self.patientID = data[1]
-        self.patientName = data[2]
-        self.studyDes = data[3]
-        self.SeriesDes = data[4]'''
         self.getSeriesFromDB()
-
-        # patient.appendRows(stu)
-
-        # rootNode.appendRows(patient)
-        '---------------------------------'
-
-        # Tree-view define
-        # self.treeView.setHeaderHidden(True)
 
     def get_change(self, selected, deselected):
         print(selected.index)
@@ -140,11 +122,14 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def getSeriesFromDB(self):
         print('getSeriesFromDB')
-        try:
-            print(self.myDB.sqlite.getSQLtableColumn('TBStudy', 'zPatient_id'))
-            print(self.myDB.sqlite.getSQLtableColumn('TBSeries', 'zSeriesDescription'))
-        except Exception:
-            pass
+
+        sql_cmd="SELECT zPatient_name,zPatient_id,zSeriesDescription, zPath FROM TBSeries ORDER BY zPatient_name ASC"
+        self.myDB.sqlite.cur.execute(sql_cmd)
+        series_list = [value for value in self.myDB.sqlite.cur]
+        print(series_list)
+        # print(self.myDB.sqlite.getSQLtableColumn('TBStudy', 'zPatient_id'))
+        # print(self.myDB.sqlite.getSQLtableColumn('TBSeries', 'zSeriesDescription'))
+
 
     def openDirUpdateView(self):
         p = QFileDialog.getExistingDirectory(self, "Choose Folder to View DICOM")

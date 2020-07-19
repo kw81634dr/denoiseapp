@@ -1,6 +1,7 @@
 import pydicom
 from pydicom.misc import is_dicom
 from pydicom.tag import Tag
+from pydicom.uid import generate_uid
 import numpy as np
 from pathlib import Path
 from dbmodule import SQLiteTools
@@ -72,7 +73,8 @@ def scan_dcm(path):
         # pprint(f_list)
         for i in f_list:
             if i.is_file():
-                fl.append(i)
+                if is_dicom(i):
+                    fl.append(i)
         return fl
 
 
@@ -88,13 +90,12 @@ class DcmDataBase:
             self.sqlite.createConnection(self.DB_File)
         except Exception as e:
             print('DB Error', e)
-        self.genTable()
 
-    def genTable(self, table_name='TBImage'):
+    def createDBbyScan(self, path_to_scan='', table_name='TBImage'):
         self.tableName = table_name
         if not self.sqlite.selectTableExist(table_name):
             # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(table_name)
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zUUID', unique_datatype='TEXT')
             # 寫入直欄標籤
             self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
@@ -104,35 +105,11 @@ class DcmDataBase:
             self.sqlite.addSQLtableColumn(self.tableName, "zStudyInstanceUID", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zSeriesInstanceUID", "TEXT")
             self.sqlite.addSQLtableColumn(self.tableName, "zInstanceNumber", "TEXT")
-
-    def genTable2(self, table_name='TBSeries'):
-        self.tableName = table_name
-        if not self.sqlite.selectTableExist(table_name):
-            # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(table_name)
-            # 寫入直欄標籤
-            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zSeriesDescription", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
-
-    def genTable3(self, table_name='TBStudy'):
-        self.tableName = table_name
-        if not self.sqlite.selectTableExist(table_name):
-            # 建立table的同時自動生成 Primary Key 在第一個欄位
-            self.sqlite.createSQLtable(table_name)
-            # 寫入直欄標籤
-            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zStusyDescription", "TEXT")
-            self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
-
-    def createDBbyScan(self, path_to_scan=''):
-        # scan for dicom files
+        '----------scan dicom files--------'
         dcm_scan_list = scan_dcm(path_to_scan)
         # pprint(dcm_scan_list)
         readyToInsertList = []
-
+        # ----------prepare data to writ into DB--------
         for ds_file in dcm_scan_list:
             try:
                 ds = pydicom.dcmread(ds_file)
@@ -153,54 +130,73 @@ class DcmDataBase:
                             TagValDict.update({val: ds[key].value.decode('utf8')})
                         else:
                             TagValDict.update({val: ds[key].value})
-
                 # pprint(TagValDict)
+                uuid = generate_uid(entropy_srcs=[str(TagValDict['PatientID']), TagValDict['studyInstanceUID'], TagValDict['seriesInstanceUID'], str(TagValDict['instanceNumber'])])
 
-                dataTuple = (str(TagValDict['path']), TagValDict['PatientID'], str(TagValDict['PatientName']),
+                dataTuple = (str(uuid), str(TagValDict['path']), TagValDict['PatientID'], str(TagValDict['PatientName']),
                              TagValDict['studyDescription'], TagValDict['seriesDescription'],
                              TagValDict['studyInstanceUID'], TagValDict['seriesInstanceUID'],
                              TagValDict['instanceNumber'])
-                readyToInsertList.append(dataTuple)
+        # ----------end of prepare data to writ into DB--------
+                readyToInsertList.append(dataTuple)     # data ready to write into DB
                 # pprint(readyToInsertList)
             except Exception as e:
-                # print("Invalid or Not DICOM:", ds_file, "->", e)
+                print("Not or Invalid DICOM File:", ds_file, "->", e)
                 pass
         # 第一個欄位寫入NULL來避免修改自動生成的 Primary Key
-        sqlCmd = "INSERT OR ignore INTO " + self.tableName + " VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)"
+        sqlCmd = "INSERT OR IGNORE INTO " + self.tableName + " VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         print('len=', len(readyToInsertList))
         self.sqlite.cur.executemany(sqlCmd, readyToInsertList)
         self.sqlite.con.commit()
         print('We have inserted', self.sqlite.cur.rowcount, 'records to the table.')
         self.sqlite.con.close()
-        self.getSeries()
-        self.getStudies()
+        self.genSeriesTable()
+        self.genStudiesTable()
 
-    def getSeries(self):
+    def genSeriesTable(self, table_name='TBSeries', from_table_name='TBImage'):
+        self.tableName = table_name
         con = self.sqlite.createConnection(self.DB_File)
-        self.genTable2(table_name='TBSeries')
-        sql_cmd_group_by_series="SELECT zPatient_name,zPatient_id,zSeriesDescription,group_concat(zPath) FROM TBImage GROUP BY zSeriesInstanceUID  ORDER BY zPatient_name ASC"
+        if not self.sqlite.selectTableExist(table_name):
+            # 建立table的同時自動生成 Primary Key 在第一個欄位
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zSeriesInstanceUID', unique_datatype='TEXT')
+            # 寫入直欄標籤
+            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zStusyDescription", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
+        sql_cmd_group_by_series="SELECT zSeriesInstanceUID,zPatient_name,zPatient_id,zSeriesDescription,group_concat(zPath) FROM "+from_table_name+" GROUP BY zSeriesInstanceUID  ORDER BY zPatient_name ASC"
         self.sqlite.cur.execute(sql_cmd_group_by_series)
         series_list = [value for value in self.sqlite.cur]
-        sq = "INSERT OR ignore INTO TBSeries VALUES (NULL, ?, ?, ?, ?)"
+        # print(series_list)
+        sq = "INSERT OR IGNORE INTO TBSeries VALUES (NULL, ?, ?, ?, ?, ?)"
         self.sqlite.cur.executemany(sq, series_list)
         self.sqlite.con.commit()
         self.sqlite.con.close()
 
-    def getStudies(self):
+    def genStudiesTable(self, table_name='TBStudy', from_table_name='TBImage'):
+        self.tableName = table_name
         con = self.sqlite.createConnection(self.DB_File)
-        self.genTable3(table_name='TBStudy')
-        sql_cmd_group_by_study = "SELECT zPatient_name,zPatient_id,zStudyDescription,group_concat(zPath) FROM TBImage GROUP BY zStudyInstanceUID  ORDER BY zPatient_name ASC"
+        if not self.sqlite.selectTableExist(table_name):
+            # 建立table的同時自動生成 Primary Key 在第一個欄位
+            self.sqlite.createSQLtable(self.tableName, with_unique=True, unique_name='zStudyInstanceUID', unique_datatype='TEXT')
+            # 寫入直欄標籤
+            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_name", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zPatient_id", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zStusyDescription", "TEXT")
+            self.sqlite.addSQLtableColumn(self.tableName, "zPath", "TEXT")
+        sql_cmd_group_by_study = "SELECT zStudyInstanceUID,zPatient_name,zPatient_id,zStudyDescription,group_concat(zPath) FROM TBImage GROUP BY zStudyInstanceUID  ORDER BY zPatient_name ASC"
         self.sqlite.cur.execute(sql_cmd_group_by_study)
         study_list = [value for value in self.sqlite.cur]
-        sq = "INSERT OR ignore INTO TBStudy VALUES (NULL, ?, ?, ?, ?)"
+        sq = "INSERT OR IGNORE INTO TBStudy VALUES (NULL, ?, ?, ?, ?, ?)"
         self.sqlite.cur.executemany(sq, study_list)
         self.sqlite.con.commit()
         self.sqlite.con.close()
 
 
 if __name__ == "__main__":
-    # pathScan = r'D:\Users\user\Desktop\NTUCT'
-    pathScan = r'D:\Users\user\Desktop\NTUISO\CT5'
-    myDb = DcmDataBase(db_name='testDB')
+    pathScan = r'D:\Users\user\Desktop\NTUCT'
+    # pathScan = r'D:\Users\user\Desktop\NTUISO\CT5'
+    myDb = DcmDataBase(db_name='DBgenByDcmMudole')
     myDb.createDBbyScan(path_to_scan=pathScan)
+    # myDb.genSeriesTable()
     print("Done")

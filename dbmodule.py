@@ -33,13 +33,21 @@ class SQLiteTools():
         else:
             return False
 
-    def createSQLtable(self, tbname):
+    def createSQLtable(self, tbname, with_unique=False, unique_name='', unique_datatype='TEXT'):
         """
         创建通用数据表，默认第一列为主键，名称:ID，类型:INTEGER, 自增
-        :param tbname: 数据表名称
+        :param tbname: 資料表名稱
+        :param with_unique: 是否建立'值'不能重複的UNIQUE直欄?
+        :param unique_name: UNIQUE直欄的名稱
+        :param unique_datatype: UNIQUE直欄的資料類型
         """
         # CREATE TABLE if not exists 表名 (ID INTEGER PRIMARY KEY AUTOINCREMENT);
-        sql = u"CREATE TABLE if not exists " + tbname + u" (ID INTEGER PRIMARY KEY AUTOINCREMENT);"
+        if with_unique:
+            unique_name = "\"unique_column_name\""
+            sql = u"CREATE TABLE " + tbname + u"(\"ID\" INTEGER," + unique_name + " " + \
+                  unique_datatype + " UNIQUE,PRIMARY KEY(\"ID\" AUTOINCREMENT)); "
+        else:
+            sql = u"CREATE TABLE if not exists " + tbname + u" (ID INTEGER PRIMARY KEY AUTOINCREMENT);"
         self.cur.execute(sql)
         self.con.commit()  # 提交更新至数据库文件
 
@@ -54,7 +62,14 @@ class SQLiteTools():
         :param columnName: 直行数
         :param genre: 添加列类型
         """
-        # ALTER TABLE 表名 ADD 列名 列类型;
+        # ALTER TABLE: 更改資料表限制
+        # sytax: ALTER TABLE 表名 ADD 列名 列类型;
+        # if isUNIQUE:
+        #     sql = u"ALTER TABLE " + tbname + u" ADD " + columnName + " " + genre + ";"
+        #     self.cur.execute(sql)
+        #     sql = u"CREATE UNIQUE INDEX " + u"index_" + columnName + u" ON " + tbname + " (" + columnName + ")" + ";"
+        # else:
+        #     sql = u"ALTER TABLE " + tbname + u" ADD " + columnName + " " + genre + ";"
         sql = u"ALTER TABLE " + tbname + u" ADD " + columnName + " " + genre + ";"
         self.cur.execute(sql)
         self.con.commit()  # 提交更新至数据库文件
@@ -252,7 +267,7 @@ if __name__ == '__main__':
 
     class sqliteTest():
         def __init__(self):
-            self.DB_File = "./DcmDB.db"
+            self.DB_File = "./DBgenBydbModule.db"
             self.tableName = "files"
 
             # 如果存在mysql.ini先删除，方便下列代码的测试
@@ -265,7 +280,7 @@ if __name__ == '__main__':
         # 创建表
         def createTable(self):
             if not self.sqlite.selectTableExist(self.tableName):
-                self.sqlite.createSQLtable(self.tableName)
+                self.sqlite.createSQLtable(self.tableName, with_unique_id_column=True)
 
         # 添加数据
         def addData(self):
@@ -280,9 +295,10 @@ if __name__ == '__main__':
             self.sqlite.setSQLtableValue(self.tableName, "month2", 2, "2-2")
             self.sqlite.setSQLtableValue(self.tableName, "month2", 3, "2-3")
 
-            data = [("Ride", "a", datetime.date(1994, 5, 5)),
-                    ("Water", "b", datetime.date(2017, 1, 2))]
-            self.sqlite.cur.executemany("INSERT INTO files VALUES (NULL, ?, ?, ?)", data)
+            data = [("uuid.140.68.69", "Ride", "a", datetime.date(1994, 5, 5)),
+                    ("uuid.140.68.70", "Water", "b", datetime.date(2017, 1, 2)),
+                    ("uuid.140.68.69", "this line will be ignored", "due to identity uuid", datetime.date(2019, 3, 2))]
+            self.sqlite.cur.executemany("INSERT OR IGNORE INTO files VALUES (NULL, ?, ?, ?, ?)", data)
             self.sqlite.con.commit()
 
         # 获取数据
