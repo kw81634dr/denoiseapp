@@ -98,7 +98,6 @@ class DcmViewFrame(QFrame):
         # self.show()
         self.inter.Initialize()
 
-
     def keyboard_callback_func(self, obj, event_id):
         print(obj.GetKeySym())
         cur_slice = self.dcmViewer.GetSlice()

@@ -151,8 +151,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.frame.setLayout(self.vl)
             self.setCentralWidget(self.frame)
 
-
-
     def open_dcm_onlick(self, p):
         if Path(p).is_file():
             file_path = Path(p)
