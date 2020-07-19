@@ -1,6 +1,7 @@
 # Denoise App
 
 論文用 DICOM 降噪程式
+![image](https://github.com/kw81634dr/denoiseapp/blob/master/%E6%93%B7%E5%8F%96kwDeniseApp.PNG)
 
 ### To-Do
 將 n2nkeras 降噪功能放在圖形介面按鈕上
