@@ -55,10 +55,10 @@ class DicomDirParser:
                                                 for image_rec in image_records]
                     """複製影像到目標階層目錄"""
                     for old_filename in original_image_filenames:
-                        new_filename = self.pathL3.joinpath(old_filename.name)
-                        print('Copy', old_filename, 'to', new_filename)
+                        new_filename = self.pathL3.joinpath(old_filename.name).with_suffix('.dcm')
                         try:
-                            shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
+                            # shutil.copyfile(old_filename, new_filename)  # copyfile(A, B) # A,B 皆須是檔案
+                            print('Copy', old_filename, 'to', new_filename)
                         except shutil.Error:
                             print(shutil.Error)
                             pass
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # 原因: 編譯器將路徑中的 C:\Users\ 視為Unicode-Escape編碼的跳脫字元
     # 因此\U被當成Unicode Code字串的起點，依照定義後面必需接8位數字 (ex. \U01000001) 來Decode
     # 在此後面接了一串字母，因此產生Decode失敗的錯誤訊息。
-    in_directory = r'D:\Users\user\Desktop\NTUISO\CT1'
+    in_directory = r'D:\Users\user\Desktop\NTUISO\CT5'
     out_directory = r'C:\Parsed'
     DicomDirParser(in_directory, out_directory).parseDIR()
     print("Done")
