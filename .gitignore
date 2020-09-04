@@ -139,3 +139,5 @@ dmypy.json
 /IAC_2/
 *.db
 .db
+/weights/
+/testdata/
