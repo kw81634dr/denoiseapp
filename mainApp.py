@@ -173,6 +173,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             image = cv2.cvtColor(dcm_image_scaled, cv2.COLOR_GRAY2RGB)
             cv2.imshow('DICOM', image)
             cv2.waitKey(0)
+            cv2.destroyAllWindows()
         else:
             self.statusBar().showMessage('Please choose Folder.')
 
