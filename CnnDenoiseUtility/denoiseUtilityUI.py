@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'den_uty.ui'
+# Form implementation generated from reading ui file 'denoiseUtilityUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -8,11 +8,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(452, 600)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_denoiseUtilityMainWindow(object):
+    def setupUi(self, denoiseUtilityMainWindow):
+        denoiseUtilityMainWindow.setObjectName("denoiseUtilityMainWindow")
+        denoiseUtilityMainWindow.resize(452, 600)
+        self.centralwidget = QtWidgets.QWidget(denoiseUtilityMainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -73,50 +73,50 @@ class Ui_MainWindow(object):
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
         self.pushButton_doProcess = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_doProcess.setEnabled(False)
+        self.pushButton_doProcess.setEnabled(True)
         self.pushButton_doProcess.setObjectName("pushButton_doProcess")
         self.horizontalLayout_3.addWidget(self.pushButton_doProcess)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem2)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        denoiseUtilityMainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(denoiseUtilityMainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 452, 22))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        denoiseUtilityMainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(denoiseUtilityMainWindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        denoiseUtilityMainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(denoiseUtilityMainWindow)
+        QtCore.QMetaObject.connectSlotsByName(denoiseUtilityMainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, denoiseUtilityMainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_step1_txt.setText(_translate("MainWindow", "1. Input Image Directory"))
-        self.pushButton_step1_inputdir.setText(_translate("MainWindow", "Select"))
-        self.label_step1_inputPath.setText(_translate("MainWindow", "path here"))
-        self.label_step2_txt.setText(_translate("MainWindow", "2. prompt weight file"))
-        self.pushButton_step2_weightdir.setText(_translate("MainWindow", "Select"))
-        self.label_step2_path.setText(_translate("MainWindow", "path here"))
-        self.label_step3_txt.setText(_translate("MainWindow", "3. Test gaussian noise STDEV"))
-        self.label_step3_val.setText(_translate("MainWindow", "val"))
-        self.pushButton_step3_reset.setText(_translate("MainWindow", "Default"))
-        self.label_step4_txt.setText(_translate("MainWindow", "4.Output Image Directory"))
-        self.pushButton_step4_outputdir.setText(_translate("MainWindow", "Select"))
-        self.label_step4_outputdir.setText(_translate("MainWindow", "path here"))
-        self.label_status.setText(_translate("MainWindow", "Status:Idel, waiting for user prompting parameters."))
-        self.pushButton_clearall.setText(_translate("MainWindow", "Clear All"))
-        self.pushButton_doProcess.setText(_translate("MainWindow", "Process Denoising"))
+        denoiseUtilityMainWindow.setWindowTitle(_translate("denoiseUtilityMainWindow", "MainWindow"))
+        self.label_step1_txt.setText(_translate("denoiseUtilityMainWindow", "1. Input Image Directory"))
+        self.pushButton_step1_inputdir.setText(_translate("denoiseUtilityMainWindow", "Select"))
+        self.label_step1_inputPath.setText(_translate("denoiseUtilityMainWindow", "path here"))
+        self.label_step2_txt.setText(_translate("denoiseUtilityMainWindow", "2. prompt weight file"))
+        self.pushButton_step2_weightdir.setText(_translate("denoiseUtilityMainWindow", "Select"))
+        self.label_step2_path.setText(_translate("denoiseUtilityMainWindow", "path here"))
+        self.label_step3_txt.setText(_translate("denoiseUtilityMainWindow", "3. Test gaussian noise STDEV"))
+        self.label_step3_val.setText(_translate("denoiseUtilityMainWindow", "val"))
+        self.pushButton_step3_reset.setText(_translate("denoiseUtilityMainWindow", "Default"))
+        self.label_step4_txt.setText(_translate("denoiseUtilityMainWindow", "4.Output Image Directory"))
+        self.pushButton_step4_outputdir.setText(_translate("denoiseUtilityMainWindow", "Select"))
+        self.label_step4_outputdir.setText(_translate("denoiseUtilityMainWindow", "path here"))
+        self.label_status.setText(_translate("denoiseUtilityMainWindow", "Status:Idel, waiting for user prompting parameters."))
+        self.pushButton_clearall.setText(_translate("denoiseUtilityMainWindow", "Clear All"))
+        self.pushButton_doProcess.setText(_translate("denoiseUtilityMainWindow", "Process Denoising"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    denoiseUtilityMainWindow = QtWidgets.QMainWindow()
+    ui = Ui_denoiseUtilityMainWindow()
+    ui.setupUi(denoiseUtilityMainWindow)
+    denoiseUtilityMainWindow.show()
     sys.exit(app.exec_())
 

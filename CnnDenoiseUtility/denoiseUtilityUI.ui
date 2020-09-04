@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>denoiseUtilityMainWindow</class>
+ <widget class="QMainWindow" name="denoiseUtilityMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -158,7 +158,7 @@
       <item>
        <widget class="QPushButton" name="pushButton_doProcess">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Process Denoising</string>
